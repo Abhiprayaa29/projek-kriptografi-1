@@ -73,7 +73,7 @@ Write-Host ('Task "{0}" state: {1}' -f $TaskName, $task.State) -ForegroundColor 
 Write-Host ''
 Write-Host 'Selesai! Cara pakai:'
 Write-Host '  1. Buka folder ini di VS Code:  code .'
-Write-Host '  2. Simpan file (Ctrl+S) -> otomatis ke-push (~3 detik)'
+Write-Host '  2. Simpan file (Ctrl+S) -> otomatis ke-push / ke-pull (~2 detik)'
 Write-Host "  3. Log: $RepoDir\.autosync.log"
 Write-Host ''
 Write-Host 'Stop sementara : Stop-ScheduledTask -TaskName' $TaskName

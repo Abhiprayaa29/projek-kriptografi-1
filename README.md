@@ -57,7 +57,7 @@ Di VS Code:
 **Selesai.** Tidak perlu buka PowerShell lagi untuk kerja harian.
 
 > **Sudah join SEBELUM fitur pull otomatis?**  
-> Jalankan **sekali** (script lama tidak bisa menarik update sendiri):
+> Jalankan **sekali** (atau jalankan ulang baris `join.ps1` di atas — sekarang ikut `git pull`):
 > ```powershell
 > cd "$env:USERPROFILE\Documents\Kuliah\semester-5\kriptografi"
 > git pull
