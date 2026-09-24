@@ -54,10 +54,11 @@ while ($true) {
         $before = Get-Head
         git pull --rebase --autostash 2>$null | Out-Null
         git push 2>$null | Out-Null
+        $pushOk = ($LASTEXITCODE -eq 0)
         $after  = Get-Head
 
         if ($dirty) {
-            if ($LASTEXITCODE -eq 0) {
+            if ($pushOk) {
                 Write-Log "PUSHED: $changed"
             }
             else {
