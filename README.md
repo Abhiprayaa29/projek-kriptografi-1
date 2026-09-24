@@ -77,9 +77,14 @@ Atau buka file `.autosync.log` di folder repo. Kalau ada baris:
 ```
 2026-09-24 18:05:12 PUSHED: M README.md;
 2026-09-24 18:05:15 PULLED: update dari GitHub
+2026-09-24 18:05:20 PUSHED: push 1 commit lokal (tree bersih)
 ```
 
 berarti aman (push = perubahanmu ter-upload; pull = update teman ter-download).
+
+- `PUSHED: M ...` / `COMMIT_OK_PUSH_FAIL` = ada file lokal di-commit lalu push (gagal = lihat baris FAIL).
+- `PUSHED: push N commit lokal (tree bersih)` = commit lokal yang belum ada di GitHub berhasil ke-push (tree sudah bersih, tidak ada file baru lagi).
+- `PUSH FAIL ... timeout after 45s` = `git push/pull` sempat hang (misal nunggu login) → di-kill otomatis, watcher tetap jalan dan coba lagi. Kalau ini muncul terus-menerus: login GitHub sekali di jendela interaktif (lihat troubleshooting).
 
 > **Syarat sebelum step 1:** owner harus invite dulu sebagai collaborator.  
 > Tanpa invite, clone/push gagal (403).
