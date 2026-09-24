@@ -80,6 +80,21 @@ function Ensure-GitIdentity {
 function Ensure-Repo {
     if (Test-Path (Join-Path $TargetDir '.git')) {
         Write-Host "Repo sudah ada di: $TargetDir" -ForegroundColor Green
+        # Tarik update script (auto-sync dua arah, README, dll).
+        Write-Host 'Git pull update terbaru...' -ForegroundColor Cyan
+        Push-Location -LiteralPath $TargetDir
+        try {
+            git pull --rebase --autostash 2>$null | Out-Null
+            if ($LASTEXITCODE -ne 0) {
+                git pull --rebase --autostash
+                if ($LASTEXITCODE -ne 0) {
+                    Write-Host 'Pull gagal (offline / conflict?). Lanjut setup dulu.' -ForegroundColor Yellow
+                }
+            }
+        }
+        finally {
+            Pop-Location
+        }
         return
     }
 
@@ -130,6 +145,6 @@ Write-Host 'SELESAI — plug & play.' -ForegroundColor Green
 Write-Host "Folder : $TargetDir"
 Write-Host "Log    : $TargetDir\.autosync.log"
 Write-Host ''
-Write-Host 'Cara pakai: simpan file di VS Code (Ctrl+S) -> otomatis push ke GitHub.' -ForegroundColor Green
+Write-Host 'Cara pakai: simpan file di VS Code (Ctrl+S) -> otomatis push + pull dari GitHub.' -ForegroundColor Green
 Write-Host ''
 Read-Host 'Tekan Enter untuk tutup jendela ini'

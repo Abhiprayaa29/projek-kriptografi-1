@@ -61,7 +61,7 @@ Register-ScheduledTask `
     -Action $action `
     -Trigger $trigger `
     -Settings $settings `
-    -Description 'Auto-commit + auto-push Projek Kriptografi 1 ke GitHub' `
+    -Description 'Auto-commit + auto-pull + auto-push Projek Kriptografi 1 (GitHub)' `
     -Force | Out-Null
 
 Start-ScheduledTask -TaskName $TaskName
