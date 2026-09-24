@@ -197,7 +197,7 @@ Get-ScheduledTask -TaskName autosync-projek-kriptografi | Format-Table TaskName,
 Get-Content .autosync.log -Tail 20
 
 Stop-ScheduledTask  -TaskName autosync-projek-kriptografi   # jeda
-Start-ScheduledTask -TaskName autosync-projek-kriptografi   # lanut
+Start-ScheduledTask -TaskName autosync-projek-kriptografi   # lanjut
 Unregister-ScheduledTask -TaskName autosync-projek-kriptografi -Confirm:$false  # hapus
 ```
 
