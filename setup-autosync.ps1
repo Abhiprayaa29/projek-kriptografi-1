@@ -23,16 +23,11 @@ if (-not (Get-Command git -ErrorAction SilentlyContinue)) {
 
 $userName  = git config --global user.name
 $userEmail = git config --global user.email
-if (-not $userName) {
-    do {
-        $userName = Read-Host 'Nama kamu (untuk commit)'
-    } while ([string]::IsNullOrWhiteSpace($userName))
-    git config --global user.name $userName
-}
-if (-not $userEmail) {
-    do {
-        $userEmail = Read-Host 'Email GitHub kamu'
-    } while ([string]::IsNullOrWhiteSpace($userEmail))
+if (-not $userName -or -not $userEmail) {
+    # Auto-fill — jangan minta input (plug & play).
+    if (-not $userName)  { $userName  = [Environment]::UserName }
+    if (-not $userEmail) { $userEmail = ($userName.ToLower() -replace '[^a-z0-9-]', '') + '@users.noreply.github.com' }
+    git config --global user.name  $userName
     git config --global user.email $userEmail
 }
 

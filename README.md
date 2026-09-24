@@ -26,12 +26,12 @@ irm https://raw.githubusercontent.com/Abhiprayaa29/projek-kriptografi-1/main/joi
 Script akan otomatis:
 
 1. Install **Git** kalau belum ada (via winget)
-2. Minta **nama + email GitHub** kamu (sekali saja)
+2. Isi identitas commit **otomatis** (nama Windows / username GitHub) — tanpa tanya
 3. Clone repo ke `Documents\Kuliah\semester-5\kriptografi`
 4. Pasang **auto-sync** (jalan tiap login)
 5. Buka **VS Code** di folder repo
 
-Selesai. Setelah itu: **Ctrl+S** → otomatis push ke GitHub.
+**Nol input.** Habis jalan: **Ctrl+S** → otomatis push ke GitHub.
 
 > **Syarat:** invite dulu sebagai collaborator  
 > (owner: repo → Settings → Collaborators → Add people).  
