@@ -36,11 +36,13 @@ sync_once() {
   changed="$(git status --porcelain | head -20 | tr '\n' '; ')"
 
   if git add -A; then
-    if git commit -m "auto-sync: $(date '+%Y-%m-%d %H:%M:%S')" >/dev/null 2>&1; then
+    if git commit -m "auto-sync: $(date '+%Y-%m-%d %H:%M:%S') [$(git config user.name || echo unknown)]" >/dev/null 2>&1; then
       if git push >/dev/null 2>&1; then
         log "PUSHED: $changed"
+      elif git pull --rebase --autostash >/dev/null 2>&1 && git push >/dev/null 2>&1; then
+        log "PUSHED_AFTER_REBASE: $changed"
       else
-        log "COMMIT_OK_PUSH_FAIL (offline?): $changed"
+        log "COMMIT_OK_PUSH_FAIL (offline / conflict?): $changed"
       fi
     fi
   else
