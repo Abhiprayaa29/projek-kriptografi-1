@@ -9,12 +9,33 @@ LOG_FILE="$REPO_DIR/.autosync.log"
 INTERVAL_SEC=2
 SETTLE_SEC=1
 
+# Rate-limit log galat: hanya saat pesan berubah atau tiap ~30 kegagalan.
+LAST_PULL_ERR=""
+LAST_PUSH_ERR=""
+PULL_FAIL_N=0
+PUSH_FAIL_N=0
+
 log() {
   printf '%s %s\n' "$(date '+%Y-%m-%d %H:%M:%S')" "$*" >>"$LOG_FILE"
 }
 
+log_fail() {
+  # $1=kind $2=err $3=last_msg_ref_name $4=counter_ref_name
+  local kind="$1" err="$2" last_name="$3" count_name="$4"
+  local n short
+  printf -v n '%d' "${!count_name}"
+  n=$((n + 1))
+  printf -v "$count_name" '%d' "$n"
+  short="$(printf '%s' "$err" | head -n 3 | tr '\n' '|' | cut -c1-400)"
+  [[ -z "$short" ]] && short="galat tidak diketahui"
+  local prev="${!last_name}"
+  if [[ "$n" -eq 1 || "$short" != "$prev" || $((n % 30)) -eq 0 ]]; then
+    log "$kind FAIL (x$n): $short"
+    printf -v "$last_name" '%s' "$short"
+  fi
+}
+
 sync_once() {
-  # Jangan jalankan dua proses sync bersamaan.
   exec 9>"$LOCK_FILE"
   if ! flock -n 9; then
     return 0
@@ -25,7 +46,6 @@ sync_once() {
   local dirty=0
   local changed=""
   if [[ -n "$(git status --porcelain 2>/dev/null)" ]]; then
-    # Tunggu sebentar supaya file yang sedang disimpan selesai ditulis.
     sleep "$SETTLE_SEC"
     if [[ -n "$(git status --porcelain 2>/dev/null)" ]]; then
       dirty=1
@@ -35,19 +55,31 @@ sync_once() {
     fi
   fi
 
-  local before after push_ok=1
+  local before after push_ok=1 pull_err="" push_err=""
   before="$(git rev-parse HEAD 2>/dev/null || true)"
-  git pull --rebase --autostash >/dev/null 2>&1 || true
-  if ! git push >/dev/null 2>&1; then
-    push_ok=0
+
+  if ! pull_err="$(git pull --rebase --autostash 2>&1)"; then
+    log_fail PULL "$pull_err" LAST_PULL_ERR PULL_FAIL_N
+  else
+    PULL_FAIL_N=0
+    LAST_PULL_ERR=""
   fi
+
+  if ! push_err="$(git push 2>&1)"; then
+    push_ok=0
+    log_fail PUSH "$push_err" LAST_PUSH_ERR PUSH_FAIL_N
+  else
+    PUSH_FAIL_N=0
+    LAST_PUSH_ERR=""
+  fi
+
   after="$(git rev-parse HEAD 2>/dev/null || true)"
 
   if [[ "$dirty" -eq 1 ]]; then
     if [[ "$push_ok" -eq 1 ]]; then
       log "PUSHED: $changed"
     else
-      log "COMMIT_OK_PUSH_FAIL (offline / conflict?): $changed"
+      log "COMMIT_OK_PUSH_FAIL: $changed"
     fi
   elif [[ -n "$before" && -n "$after" && "$before" != "$after" ]]; then
     log "PULLED: update dari GitHub"
