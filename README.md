@@ -7,11 +7,13 @@ Repositori dipakai bareng anggota kelompok (**Windows**).
 
 | | |
 |---|---|
-| Repo | https://github.com/Abhiprayaa29/projek-kriptografi-1 |
+| Repo | https://github.com/<OWNER>/<REPO> |
 | Branch utama | `main` |
 | OS anggota | Windows |
 
 > **Catatan:** seluruh sistem auto-sync di repo ini (**hanya untuk koneksi / sinkronisasi**, bukan logika projek kriptografi). Toolkit ini generik: salin ke repo lain (tugas kuliah, projek bareng, dsg.), ganti URL repo + nama folder, langsung jalan. Lihat **Pakai di projek lain** di bawah.
+>
+> **Catatan template:** URL di README ini memakai placeholder `<OWNER>` / `<REPO>` (username dan nama repo sengaja tidak ditulis). Ganti dengan nilai asli repo kamu sebelum dipakai / dishare.
 
 ---
 
@@ -23,7 +25,7 @@ Buka **PowerShell** (Start Menu → ketik `PowerShell` → Enter),
 **copy-paste** ini, lalu Enter:
 
 ```powershell
-irm https://raw.githubusercontent.com/Abhiprayaa29/projek-kriptografi-1/main/join.ps1 | iex
+irm https://raw.githubusercontent.com/<OWNER>/<REPO>/main/join.ps1 | iex
 ```
 
 **Jangan ketik apa-apa.** Biarkan jalan sampai tulisan `SELESAI`  
@@ -201,7 +203,7 @@ projek-kriptografi-1/
 ### 1. Clone
 
 ```bat
-git clone https://github.com/Abhiprayaa29/projek-kriptografi-1.git
+git clone https://github.com/<OWNER>/<REPO>.git
 cd projek-kriptografi-1
 ```
 
@@ -268,7 +270,7 @@ git push
 
 ## Untuk owner: sharing & setup
 
-Bagian ini hanya untuk **pemilik repo** (Abhiprayaa29). Anggota kelompok tidak perlu langkah ini.
+Bagian ini hanya untuk **pemilik repo** (`<OWNER>`). Anggota kelompok tidak perlu langkah ini.
 
 ### 1. Invite anggota sebagai collaborator
 
@@ -276,7 +278,7 @@ Tanpa invite, `join.ps1` / `git clone` gagal (403). Dua cara, hasilnya sama.
 
 **Via web (paling mudah, di browser mana pun):**
 
-1. Buka https://github.com/Abhiprayaa29/projek-kriptografi-1/settings/access
+1. Buka https://github.com/<OWNER>/<REPO>/settings/access
 2. Klik **Add people**
 3. Ketik username / email GitHub teman → pilih permission **Write** → **Add**
 4. Kirim link undangan ke teman; dia harus klik **Accept invitation**
@@ -284,13 +286,13 @@ Tanpa invite, `join.ps1` / `git clone` gagal (403). Dua cara, hasilnya sama.
 **Via CLI (Linux owner, butuh `gh` sudah login):**
 
 ```bash
-gh api -X PUT repos/Abhiprayaa29/projek-kriptografi-1/collaborators/<USERNAME_GITHUB> -f permission=push
+gh api -X PUT repos/<OWNER>/<REPO>/collaborators/<USERNAME_GITHUB> -f permission=push
 ```
 
 Ganti `<USERNAME_GITHUB>` dengan username GitHub teman. Cek daftar yang sudah invite:
 
 ```bash
-gh api repos/Abhiprayaa29/projek-kriptografi-1/collaborators --jq '.[].login'
+gh api repos/<OWNER>/<REPO>/collaborators --jq '.[].login'
 ```
 
 ### 2. Share link setup ke anggota
@@ -298,7 +300,7 @@ gh api repos/Abhiprayaa29/projek-kriptografi-1/collaborators --jq '.[].login'
 Kirim **1 baris ini** ke teman (Windows):
 
 ```text
-irm https://raw.githubusercontent.com/Abhiprayaa29/projek-kriptografi-1/main/join.ps1 | iex
+irm https://raw.githubusercontent.com/<OWNER>/<REPO>/main/join.ps1 | iex
 ```
 
 Atau arahkan dia ke bagian **Cara pakai (anggota kelompok)** di README ini.
