@@ -13,7 +13,7 @@ $RepoDir   = $PSScriptRoot
 $LogFile   = Join-Path $RepoDir '.autosync.log'
 $IntervalSec = 2
 $SettleSec   = 1
-$ErrFile     = Join-Path $env:TEMP ("autosync-git-err-{0}.txt" -f $PID)
+$GitTimeoutSec = 45
 
 $mutex = New-Object System.Threading.Mutex($false, 'Local\autosync-projek-kriptografi')
 if (-not $mutex.WaitOne(0)) {
