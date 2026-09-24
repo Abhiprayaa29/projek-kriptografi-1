@@ -137,6 +137,8 @@ auto-sync  ──polling tiap 2 detik──▶  ada perubahan lokal?
 - Offline: commit lokal dulu, push/pull menyusul begitu online.
 - Teman edit file yang sama: otomatis `pull --rebase` lalu push ulang.
 - Nama di pesan commit = identitas git masing-masing (otomatis dari nama Windows).
+- **Anti-hang:** tiap perintah git (`pull`/`push`) diberi timeout **45 detik**; kalau hang (misal nunggu login), proses di-kill → masuk log sebagai `PUSH FAIL/PULL FAIL ... timeout after 45s` → loop tetap jalan dan coba lagi siklus berikutnya. Watcher tidak pernah macet diam-diam.
+- Setiap `push` yang sukses selalu tercatat di log (`PUSHED: ...`), termasuk saat tree sudah bersih tapi masih ada commit lokal yang belum ke GitHub.
 
 ---
 
@@ -150,8 +152,8 @@ projek-kriptografi-1/
 ├── cek-sync.ps1              # diagnosa 1 tombol (auth, task, log, push)
 ├── GABUNG.bat                # klik dua kali (kalau folder sudah ada)
 ├── join-local.ps1            # launcher GABUNG.bat
-├── auto-sync.ps1             # watcher auto-commit + pull + push (Windows)
-├── setup-autosync.ps1        # setup Scheduled Task
+├── auto-sync.ps1             # watcher auto-commit + pull + push (Windows; timeout 45s anti-hang)
+├── setup-autosync.ps1        # ⚡ setup sekali: daftarkan Scheduled Task (1 script Windows)
 ├── setup-autosync.bat        # klik dua kali = setup
 ├── start-auto-sync.bat       # klik dua kali = sync sekali jalan
 ├── auto-sync.sh              # versi Linux (owner): commit + pull + push
@@ -207,13 +209,17 @@ git config --global user.name  "Nama Kamu"
 git config --global user.email "email-kamu@contoh.com"
 ```
 
-### 3. Auto-sync
+### 3. Auto-sync — **1 script**
 
-Klik dua kali **`setup-autosync.bat`** di folder repo, atau:
+Dari folder repo, jalankan **sekali**:
 
 ```bat
 powershell -NoProfile -ExecutionPolicy Bypass -File .\setup-autosync.ps1
 ```
+
+(Atau klik dua kali **`setup-autosync.bat`** — isinya perintah yang sama.)
+
+Script itu: cek git + identitas → daftarkan Scheduled Task → start watcher → warmup auth GitHub (popup login mungkin muncul sekali).
 
 ### 4. Buka VS Code
 
