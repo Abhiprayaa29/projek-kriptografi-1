@@ -99,7 +99,6 @@ function Open-VsCode {
 
     Write-Host ''
     Write-Host 'VS Code belum terpasang. Membuka halaman download...' -ForegroundColor Yellow
-    Start-Process 'https://code.visual techno.com' 2>$null
     Start-Process 'https://code.visualstudio.com'
     Write-Host 'Install VS Code dengan default, lalu buka folder:' -ForegroundColor Yellow
     Write-Host "  code `"$TargetDir`""
