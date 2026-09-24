@@ -35,14 +35,16 @@ sync_once() {
     fi
   fi
 
-  local before after
+  local before after push_ok=1
   before="$(git rev-parse HEAD 2>/dev/null || true)"
   git pull --rebase --autostash >/dev/null 2>&1 || true
-  git push >/dev/null 2>&1 || true
+  if ! git push >/dev/null 2>&1; then
+    push_ok=0
+  fi
   after="$(git rev-parse HEAD 2>/dev/null || true)"
 
   if [[ "$dirty" -eq 1 ]]; then
-    if git push >/dev/null 2>&1; then
+    if [[ "$push_ok" -eq 1 ]]; then
       log "PUSHED: $changed"
     else
       log "COMMIT_OK_PUSH_FAIL (offline / conflict?): $changed"
