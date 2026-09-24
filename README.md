@@ -7,7 +7,7 @@ Repositori dipakai bareng anggota kelompok (**Windows**).
 
 | | |
 |---|---|
-| Repo | https://github.com/<OWNER>/<REPO> |
+| Repo | `https://github.com/<OWNER>/<REPO>` |
 | Branch utama | `main` |
 | OS anggota | Windows |
 
