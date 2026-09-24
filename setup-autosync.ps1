@@ -23,11 +23,17 @@ if (-not (Get-Command git -ErrorAction SilentlyContinue)) {
 
 $userName  = git config --global user.name
 $userEmail = git config --global user.email
-if (-not $userName -or -not $userEmail) {
-    Write-Host 'ERROR: identitas git belum di-set. Jalankan dulu:' -ForegroundColor Red
-    Write-Host '  git config --global user.name  "Nama Kamu"'
-    Write-Host '  git config --global user.email "email@contoh.com"'
-    exit 1
+if (-not $userName) {
+    do {
+        $userName = Read-Host 'Nama kamu (untuk commit)'
+    } while ([string]::IsNullOrWhiteSpace($userName))
+    git config --global user.name $userName
+}
+if (-not $userEmail) {
+    do {
+        $userEmail = Read-Host 'Email GitHub kamu'
+    } while ([string]::IsNullOrWhiteSpace($userEmail))
+    git config --global user.email $userEmail
 }
 
 if (-not (Test-Path -LiteralPath $ScriptPs1)) {

@@ -9,6 +9,13 @@ $RepoUrl   = 'https://github.com/Abhiprayaa29/projek-kriptografi-1.git'
 $ParentDir = Join-Path $env:USERPROFILE 'Documents\Kuliah\semester-5'
 $TargetDir = Join-Path $ParentDir 'kriptografi'
 
+# Kalau script dijalankan dari dalam clone yang sudah ada (GABUNG.bat / -File),
+# pakai folder itu — jangan clone ulang ke Documents.
+if ($PSScriptRoot -and (Test-Path (Join-Path $PSScriptRoot '.git'))) {
+    $TargetDir = $PSScriptRoot
+    $ParentDir = Split-Path -Parent $TargetDir
+}
+
 function Refresh-Path {
     $machine = [Environment]::GetEnvironmentVariable('Path', 'Machine')
     $user    = [Environment]::GetEnvironmentVariable('Path', 'User')
