@@ -88,24 +88,19 @@ berarti aman.
 ## Cara kerja auto-sync
 
 ```
-auto-sync.ps1  ──polling tiap 2 detik──▶  ada perubahan?
-                                            │ ya
-                                            ▼
-                                     git add -A
-                                            │
-                                            ▼
-                          git commit "auto-sync: <waktu> [<nama>]"
-                                            │
-                                            ▼
-                                      git push  ──▶  GitHub
-                                            │ gagal (mis. teman push duluan)
-                                            ▼
-                       git pull --rebase --autostash  →  push ulang
+auto-sync  ──polling tiap 2 detik──▶  ada perubahan lokal?
+                                        │ ya                    │ tidak (lokal bersih)
+                                        ▼                       ▼
+                                 git add -A              git pull (ambil update teman)
+                                        │
+                                        ▼
+                          git commit + pull + push ──▶ GitHub
 ```
 
+- **Dua arah:** push perubahanmu **dan** pull perubahan teman (folder/file baru muncul otomatis ~2 detik).
 - Jalan otomatis **setiap login Windows** (Scheduled Task).
-- Offline: commit lokal dulu, push menyusul begitu online.
-- Teman push duluan: otomatis `pull --rebase` lalu push ulang.
+- Offline: commit lokal dulu, push/pull menyusul begitu online.
+- Teman edit file yang sama: otomatis `pull --rebase` lalu push ulang.
 - Nama di pesan commit = identitas git masing-masing (otomatis dari nama Windows).
 
 ---
