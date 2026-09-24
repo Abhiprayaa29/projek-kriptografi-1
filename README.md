@@ -264,7 +264,54 @@ git push
 
 ---
 
-## Linux (owner)
+## Untuk owner: sharing & setup
+
+Bagian ini hanya untuk **pemilik repo** (Abhiprayaa29). Anggota kelompok tidak perlu langkah ini.
+
+### 1. Invite anggota sebagai collaborator
+
+Tanpa invite, `join.ps1` / `git clone` gagal (403). Dua cara, hasilnya sama.
+
+**Via web (paling mudah, di browser mana pun):**
+
+1. Buka https://github.com/Abhiprayaa29/projek-kriptografi-1/settings/access
+2. Klik **Add people**
+3. Ketik username / email GitHub teman → pilih permission **Write** → **Add**
+4. Kirim link undangan ke teman; dia harus klik **Accept invitation**
+
+**Via CLI (Linux owner, butuh `gh` sudah login):**
+
+```bash
+gh api -X PUT repos/Abhiprayaa29/projek-kriptografi-1/collaborators/<USERNAME_GITHUB> -f permission=push
+```
+
+Ganti `<USERNAME_GITHUB>` dengan username GitHub teman. Cek daftar yang sudah invite:
+
+```bash
+gh api repos/Abhiprayaa29/projek-kriptografi-1/collaborators --jq '.[].login'
+```
+
+### 2. Share link setup ke anggota
+
+Kirim **1 baris ini** ke teman (Windows):
+
+```text
+irm https://raw.githubusercontent.com/Abhiprayaa29/projek-kriptografi-1/main/join.ps1 | iex
+```
+
+Atau arahkan dia ke bagian **Cara pakai (anggota kelompok)** di README ini.
+
+### 3. Auto-sync owner: Windows
+
+Kalau owner juga pakai Windows (bukan Linux):
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\setup-autosync.ps1
+```
+
+Atau klik dua kali **`setup-autosync.bat`**. Task Scheduler: `autosync-projek-kriptografi`.
+
+### 4. Auto-sync owner: Linux
 
 ```bash
 bash setup-autosync.sh   # systemd user service
@@ -273,3 +320,14 @@ bash setup-autosync.sh   # systemd user service
 Stop/start: `systemctl --user stop|start autosync-projek-kriptografi`
 
 Anti-hang di Linux: `timeout 30` pada `git pull` / `git push` (variabel `GIT_TIMEOUT_SEC` di `auto-sync.sh`).
+
+Log owner: buka `.autosync.log` di folder repo (baris `PUSHED` / `PULLED` / `FAIL`).
+
+---
+
+## Linux (owner) [ringkas]
+
+```bash
+bash setup-autosync.sh   # sama dengan langkah 4 di atas
+systemctl --user stop|start autosync-projek-kriptografi
+```
