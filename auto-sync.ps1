@@ -29,16 +29,17 @@ function Write-Log {
 function Invoke-Git {
     # PS 5.1: jangan campur ValueFromRemainingArguments + param typed lain
     # (argumen positional seperti "pull" bisa salah diikat ke param typed).
-    # Semua argumen git masuk lewat named -Args; timeout via -Timeout (opsional).
+    # Semua argumen git masuk lewat named -GitArgs; timeout via -Timeout (opsional).
+    # Pakai $GitArgs (bukan $Args) supaya tidak bentrok dengan automatic $args di PS.
     param(
-        [Parameter(Mandatory = $true)][string[]]$Args,
+        [Parameter(Mandatory = $true)][string[]]$GitArgs,
         [int]$Timeout = 0
     )
     $TimeoutSec = if ($Timeout -gt 0) { $Timeout } else { $GitTimeoutSec }
 
     $psi = New-Object System.Diagnostics.ProcessStartInfo
     $psi.FileName = 'git'
-    $argLine = ($Args | ForEach-Object {
+    $argLine = ($GitArgs | ForEach-Object {
         if ($_ -match '[\s"]') { '"' + ($_ -replace '"', '\"') + '"' } else { $_ }
     }) -join ' '
     $psi.Arguments = $argLine
@@ -89,12 +90,12 @@ function Invoke-Git {
 }
 
 function Get-Head {
-    $r = Invoke-Git -Args @('rev-parse', 'HEAD') -Timeout 15
+    $r = Invoke-Git -GitArgs @('rev-parse', 'HEAD') -Timeout 15
     if ($r.Code -eq 0 -and $r.Out) { $r.Out } else { $null }
 }
 
 function Get-AheadCount {
-    $r = Invoke-Git -Args @('rev-list', '--count', 'origin/main..HEAD') -Timeout 15
+    $r = Invoke-Git -GitArgs @('rev-list', '--count', 'origin/main..HEAD') -Timeout 15
     if ($r.Code -eq 0 -and $r.Out -match '^\d+$') { [int]$r.Out } else { 0 }
 }
 
