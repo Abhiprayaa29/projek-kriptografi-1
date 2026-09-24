@@ -156,6 +156,8 @@ while ($true) {
             $script:lastPullErr = ''
         }
 
+        # Hitung ahead SEBELUM push: dipakai untuk log push yang sukses
+        # padahal tree bersih (tanpa ini, push no-op/commit lokal tidak pernah muncul di log).
         $aheadBefore = Get-AheadCount
 
         $push = Invoke-Git push
