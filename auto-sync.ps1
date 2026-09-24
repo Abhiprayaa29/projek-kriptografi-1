@@ -40,6 +40,7 @@ while ($true) {
                 $msg = 'auto-sync: {0} [{1}]' -f (Get-Date -Format 'yyyy-MM-dd HH:mm:ss'), $name
                 git commit -m $msg 2>$null | Out-Null
 
+                git pull --rebase --autostash 2>$null | Out-Null
                 git push 2>$null | Out-Null
                 if ($LASTEXITCODE -eq 0) {
                     Write-Log "PUSHED: $changed"
@@ -54,6 +55,15 @@ while ($true) {
                         Write-Log "COMMIT_OK_PUSH_FAIL (offline / conflict?): $changed"
                     }
                 }
+            }
+        }
+        else {
+            # Lokal bersih → tarik update teman (folder/file baru di GitHub).
+            $before = git rev-parse HEAD 2>$null
+            git pull --rebase --autostash --ff-only 2>$null | Out-Null
+            $after = git rev-parse HEAD 2>$null
+            if ($LASTEXITCODE -eq 0 -and $before -and $after -and $before -ne $after) {
+                Write-Log 'PULLED: update dari GitHub'
             }
         }
     }
