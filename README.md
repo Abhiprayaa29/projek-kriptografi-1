@@ -107,7 +107,7 @@ berarti aman (push = perubahanmu ter-upload; pull = update teman ter-download).
 | File teman **tidak masuk** ke PC-mu | Tunggu ~2 detik. Masih hilang → jalankan sekali `git pull` di folder repo. Masih hilang → **file teman belum ke-push** (bukan salah pull-mu) — minta teman jalankan `cek-sync.ps1` |
 | File-ku **tidak ke-push** ke GitHub | Lihat `.autosync.log` → baris `PUSH FAIL` / `COMMIT_OK_PUSH_FAIL`. Paling sering: **belum login GitHub**. Fix: buka PowerShell di folder repo → `git push` → login popup → centang remember. Lalu jalankan `powershell -ExecutionPolicy Bypass -File .\cek-sync.ps1` |
 | Log bilang `timeout after 45s (proses git di-kill)` | Git sempat hang (biasanya nunggu popup login yang tidak muncul di jendela Hidden). Fix: buka PowerShell **interaktif** di folder repo → `git push` → login sekali → centang remember. Setelah itu restart task: `Stop-ScheduledTask -TaskName autosync-projek-kriptografi` lalu `Start-ScheduledTask ...`. |
-| Sync macet total (log cuma `watcher started`) atau error parameter di log | **1 eksekusi:** `powershell -NoProfile -ExecutionPolicy Bypass -File .\fix-sync.ps1` (pull fix + restart task + diagnosa sekaligus). Kalau masih sama, paste hasilnya ke chat. |
+| Sync macet total (log cuma `watcher started`) atau error parameter di log | **1 eksekusi:** `powershell -NoProfile -ExecutionPolicy Bypass -File .\fix-sync.ps1` (print progres `1/5`..`5/5`: pull fix + restart task + diagnosa). Kalau output tidak muncul, jalankan langsung di shell: `.\fix-sync.ps1`. Kalau masih sama, paste hasilnya ke chat. |
 
 ---
 
@@ -137,7 +137,7 @@ auto-sync  ──polling tiap 2 detik──▶  ada perubahan lokal?
 - Offline: commit lokal dulu, push/pull menyusul begitu online.
 - Teman edit file yang sama: otomatis `pull --rebase` lalu push ulang.
 - Nama di pesan commit = identitas git masing-masing (otomatis dari nama Windows).
-- **Anti-hang:** tiap perintah git (`pull`/`push`) diberi timeout **45 detik**; kalau hang (misal nunggu login), proses di-kill → masuk log sebagai `PUSH FAIL/PULL FAIL ... timeout after 45s` → loop tetap jalan dan coba lagi siklus berikutnya. Watcher tidak pernah macet diam-diam.
+- **Anti-hang:** tiap perintah git (`pull`/`push`) diberi timeout — Windows **45 detik**, Linux owner **30 detik**; kalau hang (misal nunggu login / network macet), proses di-kill → masuk log sebagai `FAIL ... timeout` → loop tetap jalan dan coba lagi siklus berikutnya. Watcher tidak pernah macet diam-diam.
 - Setiap `push` yang sukses selalu tercatat di log (`PUSHED: ...`), termasuk saat tree sudah bersih tapi masih ada commit lokal yang belum ke GitHub.
 
 ---
@@ -150,7 +150,7 @@ projek-kriptografi-1/
 ├── README.md                 # file ini
 ├── join.ps1                  # ⚡ plug & play (1 baris PowerShell)
 ├── cek-sync.ps1              # diagnosa 1 tombol (auth, task, log, push)
-├── fix-sync.ps1              # 1 eksekusi: pull fix + restart watcher + diagnosa
+├── fix-sync.ps1              # 1 eksekusi: progres 1/5..5/5 (pull + restart task + diagnosa)
 ├── GABUNG.bat                # klik dua kali (kalau folder sudah ada)
 ├── join-local.ps1            # launcher GABUNG.bat
 ├── auto-sync.ps1             # watcher auto-commit + pull + push (Windows; timeout 45s anti-hang)
@@ -271,3 +271,5 @@ bash setup-autosync.sh   # systemd user service
 ```
 
 Stop/start: `systemctl --user stop|start autosync-projek-kriptografi`
+
+Anti-hang di Linux: `timeout 30` pada `git pull` / `git push` (variabel `GIT_TIMEOUT_SEC` di `auto-sync.sh`).
