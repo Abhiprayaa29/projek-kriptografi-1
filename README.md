@@ -11,6 +11,8 @@ Repositori dipakai bareng anggota kelompok (**Windows**).
 | Branch utama | `main` |
 | OS anggota | Windows |
 
+> **Catatan:** seluruh sistem auto-sync di repo ini (**hanya untuk koneksi / sinkronisasi**, bukan logika projek kriptografi). Toolkit ini generik: salin ke repo lain (tugas kuliah, projek bareng, dsg.), ganti URL repo + nama folder, langsung jalan. Lihat **Pakai di projek lain** di bawah.
+
 ---
 
 ## ⚡ Cara pakai (anggota kelompok)
