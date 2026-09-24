@@ -14,16 +14,6 @@ akan otomatis di-commit dan di-push ke GitHub.
 
 ---
 
-## Daftar anggota (isi sendiri)
-
-| Nama | GitHub |
-|---|---|
-|  | @ |
-|  | @ |
-|  | @ |
-
----
-
 ## Setup untuk anggota kelompok (Linux)
 
 ### Prasyarat
