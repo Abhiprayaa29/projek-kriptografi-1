@@ -49,7 +49,7 @@ Di VS Code:
 
 | Aksi | Hasil |
 |---|---|
-│ | Edit file → **Ctrl+S** | Otomatis ke-push (~3 detik) |
+| Edit file → **Ctrl+S** | Otomatis ke-push (~3 detik) |
 | File baru → simpan | Ikut ke-push |
 | Hapus file | Ikut ter-sync |
 | Teman push/folder baru di GitHub | Ikut ke-pull (~2 detik) |
