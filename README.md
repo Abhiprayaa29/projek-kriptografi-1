@@ -49,11 +49,20 @@ Di VS Code:
 
 | Aksi | Hasil |
 |---|---|
-| Edit file → **Ctrl+S** | Otomatis ke-push (~3 detik) |
+│ | Edit file → **Ctrl+S** | Otomatis ke-push (~3 detik) |
 | File baru → simpan | Ikut ke-push |
 | Hapus file | Ikut ter-sync |
+| Teman push/folder baru di GitHub | Ikut ke-pull (~2 detik) |
 
 **Selesai.** Tidak perlu buka PowerShell lagi untuk kerja harian.
+
+> **Sudah join SEBELUM fitur pull otomatis?**  
+> Jalankan **sekali** (script lama tidak bisa menarik update sendiri):
+> ```powershell
+> cd "$env:USERPROFILE\Documents\Kuliah\semester-5\kriptografi"
+> git pull
+> ```
+> Atau hapus folder itu, jalankan ulang 1 baris `join.ps1` (clone fresh).
 
 ### Cek sync jalan
 
@@ -123,7 +132,7 @@ projek-kriptografi-1/
 ├── join.ps1                  # ⚡ plug & play (1 baris PowerShell)
 ├── GABUNG.bat                # klik dua kali (kalau folder sudah ada)
 ├── join-local.ps1            # launcher GABUNG.bat
-├── auto-sync.ps1             # watcher auto-commit + push (Windows)
+├── auto-sync.ps1             # watcher auto-commit + pull + push (Windows)
 ├── setup-autosync.ps1        # setup Scheduled Task
 ├── setup-autosync.bat        # klik dua kali = setup
 ├── start-auto-sync.bat       # klik dua kali = sync sekali jalan
