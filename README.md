@@ -324,3 +324,22 @@ Stop/start: `systemctl --user stop|start autosync-projek-kriptografi`
 Anti-hang di Linux: `timeout 30` pada `git pull` / `git push` (variabel `GIT_TIMEOUT_SEC` di `auto-sync.sh`).
 
 Log owner: buka `.autosync.log` di folder repo (baris `PUSHED` / `PULLED` / `FAIL`).
+
+---
+
+## Pakai di projek lain
+
+Semua script di repo ini **hanya mengurus koneksi git** (clone, auto-commit, pull, push). Isi projek (kriptografi / apapun) tidak disentuh. Untuk pakai di repo lain:
+
+1. **Copy file ini** ke repo baru: `join.ps1`, `auto-sync.ps1`, `auto-sync.sh`, `setup-autosync.ps1`, `setup-autosync.sh`, `setup-autosync.bat`, `GABUNG.bat`, `cek-sync.ps1`, `fix-sync.ps1`.
+2. **Ganti 3 hardcoded** di `join.ps1`:
+   - `$RepoUrl` → URL repo baru
+   - `$ParentDir` / `$TargetDir` → path folder target
+   - teks banner `Join ...` (opsional)
+3. **Ganti nama task/service** (opsional, biar tidak bentrok kalau pasang 2 repo):
+   - Windows: `$TaskName` di `setup-autosync.ps1` + mutex di `auto-sync.ps1`
+   - Linux: `SERVICE_NAME` di `setup-autosync.sh`
+4. **Invite collaborator** di repo baru (lihat langkah owner di atas).
+5. **Jalankan setup** seperti biasa: `join.ps1` (Windows) atau `bash setup-autosync.sh` (Linux).
+
+`auto-sync.sh` / `auto-sync.ps1` tidak hardcode URL repo: mereka baca remote dari folder tempat script berada, jadi cukup clone repo baru ke mana pun, taruh script di situ, jalankan setup.
