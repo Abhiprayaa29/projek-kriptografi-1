@@ -50,27 +50,31 @@ function Ensure-Git {
     } while (-not (Test-Git))
 }
 
+# Tanpa prompt: identitas diisi otomatis biar benar-benar plug & play.
 function Ensure-GitIdentity {
     $name  = git config --global user.name  2>$null
     $email = git config --global user.email 2>$null
+    if ($name -and $email) { return }
 
+    # Prioritas: username GitHub (gh) -> nama user Windows
+    $name = $null
+    $email = $null
+    if (Get-Command gh -ErrorAction SilentlyContinue) {
+        $login = gh api user --jq .login 2>$null
+        if ($login) {
+            $name  = $login
+            $email = "$login@users.noreply.github.com"
+        }
+    }
     if (-not $name) {
-        Write-Host ''
-        Write-Host 'Identitas git belum di-set (dipakai di pesan commit).' -ForegroundColor Cyan
-        do {
-            $name = Read-Host 'Nama kamu (contoh: Budi)'
-        } while ([string]::IsNullOrWhiteSpace($name))
-        git config --global user.name $name
+        $name  = [Environment]::UserName
+        $email = ($name.ToLower() -replace '[^a-z0-9-]', '') + '@users.noreply.github.com'
     }
 
-    if (-not $email) {
-        do {
-            $email = Read-Host 'Email GitHub kamu'
-        } while ([string]::IsNullOrWhiteSpace($email))
-        git config --global user.email $email
-    }
-
-    Write-Host ("Commit akan ditandai: {0} <{1}>" -f (git config --global user.name), (git config --global user.email)) -ForegroundColor Green
+    git config --global user.name $name
+    git config --global user.email $email
+    Write-Host ''
+    Write-Host ("Identitas commit otomatis: {0} <{1}>" -f $name, $email) -ForegroundColor Green
 }
 
 function Ensure-Repo {
