@@ -1,4 +1,4 @@
-# Auto-commit + auto-push setiap ada perubahan file di folder ini.
+# Auto-commit + auto-push + auto-pull setiap ada perubahan di folder ini.
 # Untuk Windows. Dijalankan oleh Scheduled Task: autosync-projek-kriptografi
 # Jalankan: powershell -NoProfile -ExecutionPolicy Bypass -File .\auto-sync.ps1
 $ErrorActionPreference = 'Continue'
@@ -20,51 +20,52 @@ function Write-Log {
     Add-Content -LiteralPath $LogFile -Value $line -Encoding UTF8
 }
 
+function Get-Head { (git rev-parse HEAD 2>$null) }
+function Get-Status { @(git status --porcelain 2>$null) }
+
 Set-Location -LiteralPath $RepoDir
 Write-Log ("watcher started (pid {0})" -f $PID)
 
 while ($true) {
     try {
-        $status = @(git status --porcelain 2>$null)
-        if ($status.Count -gt 0) {
+        $status = Get-Status
+        $dirty  = $status.Count -gt 0
+
+        if ($dirty) {
             Start-Sleep -Seconds $SettleSec
-            $status = @(git status --porcelain 2>$null)
-            if ($status.Count -gt 0) {
-                $changed = (($status | Select-Object -First 20) -join '; ')
+            $status = Get-Status
+            $dirty  = $status.Count -gt 0
+        }
 
-                git add -A 2>$null | Out-Null
+        $changed = ''
+        if ($dirty) {
+            $changed = (($status | Select-Object -First 20) -join '; ')
+            git add -A 2>$null | Out-Null
 
-                $name = git config user.name 2>$null
-                if (-not $name) { $name = 'unknown' }
+            $name = git config user.name 2>$null
+            if (-not $name) { $name = 'unknown' }
 
-                $msg = 'auto-sync: {0} [{1}]' -f (Get-Date -Format 'yyyy-MM-dd HH:mm:ss'), $name
-                git commit -m $msg 2>$null | Out-Null
+            $msg = 'auto-sync: {0} [{1}]' -f (Get-Date -Format 'yyyy-MM-dd HH:mm:ss'), $name
+            git commit -m $msg 2>$null | Out-Null
+        }
 
-                git pull --rebase --autostash 2>$null | Out-Null
-                git push 2>$null | Out-Null
-                if ($LASTEXITCODE -eq 0) {
-                    Write-Log "PUSHED: $changed"
-                }
-                else {
-                    git pull --rebase --autostash 2>$null | Out-Null
-                    git push 2>$null | Out-Null
-                    if ($LASTEXITCODE -eq 0) {
-                        Write-Log "PUSHED_AFTER_REBASE: $changed"
-                    }
-                    else {
-                        Write-Log "COMMIT_OK_PUSH_FAIL (offline / conflict?): $changed"
-                    }
-                }
+        # Selalu coba selaraskan dengan GitHub (push kalau lokal unggah,
+        # pull kalau remote unggah / keduanya).
+        $before = Get-Head
+        git pull --rebase --autostash 2>$null | Out-Null
+        git push 2>$null | Out-Null
+        $after  = Get-Head
+
+        if ($dirty) {
+            if ($LASTEXITCODE -eq 0) {
+                Write-Log "PUSHED: $changed"
+            }
+            else {
+                Write-Log "COMMIT_OK_PUSH_FAIL (offline / conflict?): $changed"
             }
         }
-        else {
-            # Lokal bersih → tarik update teman (folder/file baru di GitHub).
-            $before = git rev-parse HEAD 2>$null
-            git pull --rebase --autostash --ff-only 2>$null | Out-Null
-            $after = git rev-parse HEAD 2>$null
-            if ($LASTEXITCODE -eq 0 -and $before -and $after -and $before -ne $after) {
-                Write-Log 'PULLED: update dari GitHub'
-            }
+        elseif ($before -and $after -and $before -ne $after) {
+            Write-Log 'PULLED: update dari GitHub'
         }
     }
     catch {
