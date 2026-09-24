@@ -152,7 +152,7 @@ while ($true) {
 
         $before = Get-Head
 
-        $pull = Invoke-Git -Args @('pull', '--rebase', '--autostash')
+        $pull = Invoke-Git -GitArgs @('pull', '--rebase', '--autostash')
         if ($pull.Code -ne 0) {
             Write-FailOnce -Kind 'PULL' -Message $pull.Err -LastMsg ([ref]$script:lastPullErr) -Count ([ref]$script:pullFailN)
         } else {
@@ -164,7 +164,7 @@ while ($true) {
         # padahal tree bersih (tanpa ini, push no-op/commit lokal tidak pernah muncul di log).
         $aheadBefore = Get-AheadCount
 
-        $push = Invoke-Git -Args @('push')
+        $push = Invoke-Git -GitArgs @('push')
         $pushOk = ($push.Code -eq 0)
         if (-not $pushOk) {
             Write-FailOnce -Kind 'PUSH' -Message $push.Err -LastMsg ([ref]$script:lastPushErr) -Count ([ref]$script:pushFailN)
