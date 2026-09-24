@@ -1,4 +1,4 @@
-# Diagnosa cepat auto-sync (Windows) — jalankan dari folder repo:
+# Diagnosa cepat auto-sync (Windows) - jalankan dari folder repo:
 #   powershell -NoProfile -ExecutionPolicy Bypass -File .\cek-sync.ps1
 # Output bisa di-copy ke chat grup kalau sync bermasalah.
 $ErrorActionPreference = 'Continue'
@@ -46,11 +46,11 @@ if ($lsCode -eq 0) {
 SEP '5. Scheduled Task'
 $task = Get-ScheduledTask -TaskName $TaskName -ErrorAction SilentlyContinue
 if (-not $task) {
-    BAD "task '$TaskName' tidak ada — jalankan setup-autosync.ps1 / join.ps1 lagi"
+    BAD "task '$TaskName' tidak ada - jalankan setup-autosync.ps1 / join.ps1 lagi"
 } else {
     Write-Host ("State    : {0}" -f $task.State)
     if ($task.State -eq 'Running') { OK 'task Running' }
-    else { WARN "task state = $($task.State) — Start-ScheduledTask -TaskName $TaskName" }
+    else { WARN "task state = $($task.State) - Start-ScheduledTask -TaskName $TaskName" }
     $info = Get-ScheduledTaskInfo -TaskName $TaskName -ErrorAction SilentlyContinue
     if ($info) {
         Write-Host ("LastRun  : {0}" -f $info.LastRunTime)
@@ -69,13 +69,13 @@ try {
     Write-Host "commits belum ke remote: $ahead"
     if ($ahead -and [int]$ahead -gt 0) { WARN 'ada commit lokal yang belum push' }
 
-    SEP '7. Log auto-sync (.autosync.log) — 30 baris terakhir'
+    SEP '7. Log auto-sync (.autosync.log) - 30 baris terakhir'
     $logPath = Join-Path $RepoDir '.autosync.log'
     if (Test-Path $logPath) {
         Get-Content $logPath -Tail 30
         $bad = Select-String -Path $logPath -Pattern 'FAIL|ERROR' -ErrorAction SilentlyContinue
         if ($bad) {
-            BAD ("ada {0} baris FAIL/ERROR di log — lihat pesan auth/conflict di atas" -f @($bad).Count)
+            BAD ("ada {0} baris FAIL/ERROR di log - lihat pesan auth/conflict di atas" -f @($bad).Count)
         } else {
             OK 'tidak ada FAIL/ERROR di log'
         }
@@ -83,7 +83,7 @@ try {
         if ($pushed) { OK ("pernah PUSHED (" + @($pushed).Count + "x)") }
         else { WARN 'belum pernah ada baris PUSHED' }
     } else {
-        BAD '.autosync.log belum ada — watcher belum pernah jalan'
+        BAD '.autosync.log belum ada - watcher belum pernah jalan'
     }
 
     SEP '8. Push percobaan (sekali; aman kalau tidak ada perubahan)'
@@ -94,7 +94,7 @@ try {
         if ($LASTEXITCODE -eq 0) { OK 'git push OK (auth remote lolos)' }
         else { BAD ("git push gagal: " + (($p | Out-String).Trim())) }
     } else {
-        WARN 'ada perubahan lokal — biarkan auto-sync yang push, atau git push manual setelah login'
+        WARN 'ada perubahan lokal - biarkan auto-sync yang push, atau git push manual setelah login'
     }
 }
 finally {
@@ -103,9 +103,9 @@ finally {
 
 SEP 'Ringkasan'
 if ($fail -eq 0) {
-    Write-Host 'SEMUA CHECK LOLOS — kalau file teman tetap tidak masuk, kirim screenshot log ini.' -ForegroundColor Green
+    Write-Host 'SEMUA CHECK LOLOS - kalau file teman tetap tidak masuk, kirim screenshot log ini.' -ForegroundColor Green
 } else {
-    Write-Host ("{0} CHECK GAGAL — copy seluruh output jendela ini ke chat." -f $fail) -ForegroundColor Red
+    Write-Host ("{0} CHECK GAGAL - copy seluruh output jendela ini ke chat." -f $fail) -ForegroundColor Red
     Write-Host 'Fix paling umum: jalankan `git push` sekali di jendela PowerShell biasa, login GitHub, centang remember.'
 }
 exit $fail

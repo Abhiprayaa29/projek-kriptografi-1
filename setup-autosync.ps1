@@ -24,7 +24,7 @@ if (-not (Get-Command git -ErrorAction SilentlyContinue)) {
 $userName  = git config --global user.name
 $userEmail = git config --global user.email
 if (-not $userName -or -not $userEmail) {
-    # Auto-fill — jangan minta input (plug & play).
+    # Auto-fill - jangan minta input (plug & play).
     if (-not $userName)  { $userName  = [Environment]::UserName }
     if (-not $userEmail) { $userEmail = ($userName.ToLower() -replace '[^a-z0-9-]', '') + '@users.noreply.github.com' }
     git config --global user.name  $userName
@@ -67,7 +67,7 @@ Register-ScheduledTask `
 Start-ScheduledTask -TaskName $TaskName
 Start-Sleep -Seconds 2
 
-# Warmup auth di jendela INTERAKTIF ini — popup Git Credential Manager
+# Warmup auth di jendela INTERAKTIF ini - popup Git Credential Manager
 # tidak muncul dari Scheduled Task yang window-nya Hidden.
 Write-Host 'Cek akses GitHub (popup login mungkin muncul sekali)...' -ForegroundColor Cyan
 $null = & git ls-remote origin HEAD 2>&1

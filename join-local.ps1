@@ -1,4 +1,4 @@
-# Wrapper lokal untuk GABUNG.bat — pakai join.ps1 yang ada di folder ini.
+# Wrapper lokal untuk GABUNG.bat - pakai join.ps1 yang ada di folder ini.
 # (join.ps1 asli di-clone/download bareng repo; file ini hanya launcher.)
 $here = Split-Path -Parent $MyInvocation.MyCommand.Path
 $join = Join-Path $here 'join.ps1'

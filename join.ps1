@@ -1,7 +1,7 @@
-# Join Projek Kriptografi 1 — plug & play untuk anggota kelompok (Windows).
+# Join Projek Kriptografi 1 - plug & play untuk anggota kelompok (Windows).
 # Dipanggil via:
 #   irm https://raw.githubusercontent.com/Abhiprayaa29/projek-kriptografi-1/main/join.ps1 | iex
-# CATATAN: saat di-irm|iex, $PSScriptRoot kosong — script ini wajib self-contained
+# CATATAN: saat di-irm|iex, $PSScriptRoot kosong - script ini wajib self-contained
 # sampai repo berhasil di-clone ke disk.
 $ErrorActionPreference = 'Stop'
 
@@ -10,7 +10,7 @@ $ParentDir = Join-Path $env:USERPROFILE 'Documents\Kuliah\semester-5'
 $TargetDir = Join-Path $ParentDir 'kriptografi'
 
 # Kalau script dijalankan dari dalam clone yang sudah ada (GABUNG.bat / -File),
-# pakai folder itu — jangan clone ulang ke Documents.
+# pakai folder itu - jangan clone ulang ke Documents.
 if ($PSScriptRoot -and (Test-Path (Join-Path $PSScriptRoot '.git'))) {
     $TargetDir = $PSScriptRoot
     $ParentDir = Split-Path -Parent $TargetDir
@@ -141,7 +141,7 @@ Invoke-AutoSyncSetup
 Open-VsCode
 
 Write-Host ''
-Write-Host 'SELESAI — plug & play.' -ForegroundColor Green
+Write-Host 'SELESAI - plug & play.' -ForegroundColor Green
 Write-Host "Folder : $TargetDir"
 Write-Host "Log    : $TargetDir\.autosync.log"
 Write-Host ''

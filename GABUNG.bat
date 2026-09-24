@@ -1,6 +1,6 @@
 @echo off
 rem ============================================
-rem  GABUNG Projek Kriptografi 1 — klik dua kali
+rem  GABUNG Projek Kriptografi 1 - klik dua kali
 rem  (versi offline: pakai join.ps1 yang sudah
 rem   ada di folder yang SAMA dengan file ini)
 rem ============================================
