@@ -2,36 +2,77 @@
 # Jalankan sekali dari folder repo:
 #   powershell -NoProfile -ExecutionPolicy Bypass -File .\fix-sync.ps1
 $ErrorActionPreference = 'Continue'
-$RepoDir = $PSScriptRoot
-$TaskName = 'autosync-projek-kriptografi'
-$LogFile = Join-Path $RepoDir '.autosync.log'
 
-Set-Location -LiteralPath $RepoDir
-Write-Host '=== 1/4 git pull --rebase ===' -ForegroundColor Cyan
-git pull --rebase
-if ($LASTEXITCODE -ne 0) {
-    Write-Host 'pull gagal - cek pesan di atas' -ForegroundColor Red
+# Fail-fast: jangan pernah nunggu prompt login di tengah script.
+$env:GIT_TERMINAL_PROMPT = '0'
+$env:GCM_INTERACTIVE     = 'Never'
+$env:GIT_ASKPASS         = 'echo'
+
+$RepoDir   = $PSScriptRoot
+$TaskName  = 'autosync-projek-kriptografi'
+$LogFile   = Join-Path $RepoDir '.autosync.log'
+
+function Step($n, $msg) {
+    Write-Host ''
+    Write-Host ('=== {0}: {1} ===' -f $n, $msg) -ForegroundColor Cyan
 }
 
-Write-Host ''
-Write-Host ('=== 2/4 restart task {0} ===' -f $TaskName) -ForegroundColor Cyan
-Stop-ScheduledTask -TaskName $TaskName -ErrorAction SilentlyContinue
+try { Set-Location -LiteralPath $RepoDir } catch {
+    Write-Host ('Gagal masuk folder: {0}' -f $_.Exception.Message) -ForegroundColor Red
+    exit 1
+}
+Write-Host ('Folder: {0}' -f $RepoDir) -ForegroundColor Yellow
+
+Step '1/5' 'git pull --rebase'
+$pull = & git pull --rebase 2>&1
+$pull | ForEach-Object { Write-Host $_ }
+if ($LASTEXITCODE -ne 0) {
+    Write-Host 'WARN: pull gagal / offline. Lanjut restart task saja.' -ForegroundColor Yellow
+} else {
+    Write-Host 'pull OK' -ForegroundColor Green
+}
+
+Step '2/5' ('stop task {0}' -f $TaskName)
+try {
+    Stop-ScheduledTask -TaskName $TaskName -ErrorAction Stop
+    Write-Host 'stop OK' -ForegroundColor Green
+} catch {
+    Write-Host ('stop dilewati: {0}' -f $_.Exception.Message) -ForegroundColor Yellow
+}
 Start-Sleep -Seconds 1
-Start-ScheduledTask -TaskName $TaskName
-Write-Host 'task di-restart; tunggu ~10 detik biar watcher jalan...' -ForegroundColor Yellow
+
+Step '3/5' ('start task {0}' -f $TaskName)
+try {
+    Start-ScheduledTask -TaskName $TaskName -ErrorAction Stop
+    Write-Host 'start OK' -ForegroundColor Green
+} catch {
+    Write-Host ('start GAGAL: {0}' -f $_.Exception.Message) -ForegroundColor Red
+}
+Write-Host 'tunggu 10 detik biar watcher jalan...' -ForegroundColor Yellow
 Start-Sleep -Seconds 10
 
-Write-Host ''
-Write-Host '=== 3/4 cek-sync.ps1 ===' -ForegroundColor Cyan
+Step '4/5' 'status task'
+try {
+    $t = Get-ScheduledTask -TaskName $TaskName -ErrorAction Stop
+    Write-Host ('State={0}' -f $t.State)
+    $ti = $t | Get-ScheduledTaskInfo -ErrorAction SilentlyContinue
+    if ($ti) {
+        Write-Host ('LastRunTime={0}  LastTaskResult={1}  NumberOfMissedRuns={2}' -f $ti.LastRunTime, $ti.LastTaskResult, $ti.NumberOfMissedRuns)
+    }
+} catch {
+    Write-Host ('gagal baca task: {0}' -f $_.Exception.Message) -ForegroundColor Red
+}
+
+Step '5/5' 'cek-sync + log'
 $cek = Join-Path $RepoDir 'cek-sync.ps1'
 if (Test-Path -LiteralPath $cek) {
-    & powershell -NoProfile -ExecutionPolicy Bypass -File $cek
+    # Panggil in-process (bukan spawn powershell baru) supaya output langsung kelihatan.
+    & $cek
 } else {
     Write-Host 'cek-sync.ps1 tidak ada, lewati' -ForegroundColor Yellow
 }
-
 Write-Host ''
-Write-Host '=== 4/4 log terakhir (.autosync.log) ===' -ForegroundColor Cyan
+Write-Host '--- log terakhir (.autosync.log) ---' -ForegroundColor Cyan
 if (Test-Path -LiteralPath $LogFile) {
     Get-Content -LiteralPath $LogFile -Tail 30
 } else {

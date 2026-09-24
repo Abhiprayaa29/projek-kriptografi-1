@@ -8,6 +8,8 @@ LOCK_FILE="$REPO_DIR/.autosync.lock"
 LOG_FILE="$REPO_DIR/.autosync.log"
 INTERVAL_SEC=2
 SETTLE_SEC=1
+# Batas waktu git network ops supaya watcher tidak menggantung (pull/push macet menit-menit).
+GIT_TIMEOUT_SEC=30
 
 # Rate-limit log galat: hanya saat pesan berubah atau tiap ~30 kegagalan.
 LAST_PULL_ERR=""
@@ -60,11 +62,11 @@ sync_once() {
   # Retry sekali untuk race transient "Cannot rebase onto multiple branches"
   # (bisa terjadi bila ada git pull paralel dari luar flock — manual/VS Code).
   pull_ok=0
-  if pull_err="$(git pull --rebase --autostash 2>&1)"; then
+  if pull_err="$(timeout "$GIT_TIMEOUT_SEC" git pull --rebase --autostash 2>&1)"; then
     pull_ok=1
   elif [[ "$pull_err" == *"Cannot rebase onto multiple branches"* ]]; then
     sleep 1
-    if pull_err="$(git pull --rebase --autostash 2>&1)"; then
+    if pull_err="$(timeout "$GIT_TIMEOUT_SEC" git pull --rebase --autostash 2>&1)"; then
       pull_ok=1
     fi
   fi
@@ -75,7 +77,7 @@ sync_once() {
     log_fail PULL "$pull_err" LAST_PULL_ERR PULL_FAIL_N
   fi
 
-  if ! push_err="$(git push 2>&1)"; then
+  if ! push_err="$(timeout "$GIT_TIMEOUT_SEC" git push 2>&1)"; then
     push_ok=0
     log_fail PUSH "$push_err" LAST_PUSH_ERR PUSH_FAIL_N
   else
