@@ -3,7 +3,7 @@
 Tugas mata kuliah **Kriptografi — Semester 5**.
 
 Repositori dipakai bareng anggota kelompok (**Windows**).
-**Setup sekali → edit di VS Code → Ctrl+S → otomatis ke-push ke GitHub.**
+**Setup sekali → edit di VS Code → Ctrl+S → otomatis ke-push & ke-pull dari GitHub.**
 
 | | |
 |---|---|
@@ -70,9 +70,10 @@ Buka file `.autosync.log` di folder repo. Kalau ada baris:
 
 ```
 2026-09-24 18:05:12 PUSHED: M README.md;
+2026-09-24 18:05:15 PULLED: update dari GitHub
 ```
 
-berarti aman.
+berarti aman (push = perubahanmu ter-upload; pull = update teman ter-download).
 
 > **Syarat sebelum step 1:** owner harus invite dulu sebagai collaborator.  
 > Tanpa invite, clone/push gagal (403).
@@ -89,6 +90,7 @@ berarti aman.
 | Tidak ada popup / push gagal auth | Jalankan `gh auth login` di PowerShell (install [GitHub CLI](https://cli.github.com) dulu) |
 | VS Code belum kebuka | Install dari https://code.visualstudio.com, lalu `code "%USERPROFILE%\Documents\Kuliah\semester-5\kriptografi"` |
 | Mau lihat apakah sync jalan | Buka `.autosync.log` di folder repo |
+| Folder/file teman gak muncul | Tunggu ~2 detik; kalau masih hilang, `git pull` sekali (lihat catatan “sudah join”) |
 | Mau jeda sync sementara | `Stop-ScheduledTask -TaskName autosync-projek-kriptografi` |
 | Konflik (teman edit file sama) | Lihat **Aturan kolaborasi** di bawah |
 
@@ -136,7 +138,7 @@ projek-kriptografi-1/
 ├── setup-autosync.ps1        # setup Scheduled Task
 ├── setup-autosync.bat        # klik dua kali = setup
 ├── start-auto-sync.bat       # klik dua kali = sync sekali jalan
-├── auto-sync.sh              # versi Linux (owner)
+├── auto-sync.sh              # versi Linux (owner): commit + pull + push
 ├── setup-autosync.sh         # versi Linux (owner)
 ├── .gitignore
 └── .autosync.log             # log (tidak di-commit)
