@@ -23,12 +23,23 @@ sync_once() {
   cd "$REPO_DIR" || return 1
 
   if [[ -z "$(git status --porcelain 2>/dev/null)" ]]; then
+    # Lokal bersih → tarik update teman (folder/file baru di GitHub).
+    local before after
+    before="$(git rev-parse HEAD 2>/dev/null || true)"
+    if git pull --rebase --autostash --ff-only >/dev/null 2>&1; then
+      after="$(git rev-parse HEAD 2>/dev/null || true)"
+      if [[ -n "$before" && -n "$after" && "$before" != "$after" ]]; then
+        log "PULLED: update dari GitHub"
+      fi
+    fi
+    flock -u 9
     return 0
   fi
 
   # Tunggu sebentar supaya file yang sedang disimpan selesai ditulis.
   sleep "$SETTLE_SEC"
   if [[ -z "$(git status --porcelain 2>/dev/null)" ]]; then
+    flock -u 9
     return 0
   fi
 
@@ -37,6 +48,7 @@ sync_once() {
 
   if git add -A; then
     if git commit -m "auto-sync: $(date '+%Y-%m-%d %H:%M:%S') [$(git config user.name || echo unknown)]" >/dev/null 2>&1; then
+      git pull --rebase --autostash >/dev/null 2>&1 || true
       if git push >/dev/null 2>&1; then
         log "PUSHED: $changed"
       elif git pull --rebase --autostash >/dev/null 2>&1 && git push >/dev/null 2>&1; then
