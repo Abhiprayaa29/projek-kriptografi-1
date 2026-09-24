@@ -27,28 +27,72 @@ function Write-Log {
 }
 
 function Invoke-Git {
-    param([Parameter(ValueFromRemainingArguments = $true)][string[]]$GitArgs)
-    if (Test-Path -LiteralPath $ErrFile) {
-        Remove-Item -LiteralPath $ErrFile -Force -ErrorAction SilentlyContinue
+    param(
+        [Parameter(ValueFromRemainingArguments = $true)][string[]]$GitArgs,
+        [int]$TimeoutSec = 0
+    )
+    if ($TimeoutSec -le 0) { $TimeoutSec = $GitTimeoutSec }
+
+    $psi = New-Object System.Diagnostics.ProcessStartInfo
+    $psi.FileName = 'git'
+    $argLine = ($GitArgs | ForEach-Object {
+        if ($_ -match '[\s"]') { '"' + ($_ -replace '"', '\"') + '"' } else { $_ }
+    }) -join ' '
+    $psi.Arguments = $argLine
+    $psi.UseShellExecute = $false
+    $psi.RedirectStandardOutput = $true
+    $psi.RedirectStandardError = $true
+    $psi.CreateNoWindow = $true
+    $psi.WorkingDirectory = $RepoDir
+
+    $proc = $null
+    try {
+        $proc = [System.Diagnostics.Process]::Start($psi)
+    } catch {
+        return [pscustomobject]@{ Code = -1; Out = ''; Err = ("gagal start git: {0}" -f $_.Exception.Message) }
     }
-    $null = & git @GitArgs 2>$ErrFile
-    $code = $LASTEXITCODE
-    $err  = ''
-    if (Test-Path -LiteralPath $ErrFile) {
-        $err = (Get-Content -LiteralPath $ErrFile -Raw -ErrorAction SilentlyContinue)
-        if ($err) { $err = $err.Trim() }
-        Remove-Item -LiteralPath $ErrFile -Force -ErrorAction SilentlyContinue
+    if (-not $proc) {
+        return [pscustomobject]@{ Code = -1; Out = ''; Err = 'gagal start git' }
     }
-    [pscustomobject]@{ Code = $code; Err = $err }
+
+    $outTask = $proc.StandardOutput.ReadToEndAsync()
+    $errTask = $proc.StandardError.ReadToEndAsync()
+
+    if (-not $proc.WaitForExit($TimeoutSec * 1000)) {
+        try { $proc.Kill() } catch { }
+        $null = $proc.WaitForExit(3000)
+        try { $proc.Dispose() } catch { }
+        return [pscustomobject]@{
+            Code = -1
+            Out  = ''
+            Err  = ("timeout after {0}s (proses git di-kill)" -f $TimeoutSec)
+        }
+    }
+
+    $null = $outTask.Wait(2000)
+    $null = $errTask.Wait(2000)
+
+    $out = ''
+    $err = ''
+    try { if ($outTask.IsCompleted) { $out = $outTask.Result } } catch { }
+    try { if ($errTask.IsCompleted) { $err = $errTask.Result } } catch { }
+
+    $code = $proc.ExitCode
+    try { $proc.Dispose() } catch { }
+
+    if ($out) { $out = $out.Trim() }
+    if ($err) { $err = $err.Trim() }
+    [pscustomobject]@{ Code = $code; Out = $out; Err = $err }
 }
 
 function Get-Head {
-    $r = Invoke-Git rev-parse HEAD
-    if ($r.Code -eq 0 -and $r.Err -eq '') {
-        (& git rev-parse HEAD 2>$null)
-    } else {
-        $null
-    }
+    $r = Invoke-Git rev-parse HEAD -TimeoutSec 15
+    if ($r.Code -eq 0 -and $r.Out) { $r.Out } else { $null }
+}
+
+function Get-AheadCount {
+    $r = Invoke-Git rev-list --count 'origin/main..HEAD' -TimeoutSec 15
+    if ($r.Code -eq 0 -and $r.Out -match '^\d+$') { [int]$r.Out } else { 0 }
 }
 
 function Get-Status { @(git status --porcelain 2>$null) }
