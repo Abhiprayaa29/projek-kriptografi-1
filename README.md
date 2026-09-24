@@ -66,7 +66,13 @@ Di VS Code:
 
 ### Cek sync jalan
 
-Buka file `.autosync.log` di folder repo. Kalau ada baris:
+**Cek cepat (semua status dalam 1 layar):**
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\cek-sync.ps1
+```
+
+Atau buka file `.autosync.log` di folder repo. Kalau ada baris:
 
 ```
 2026-09-24 18:05:12 PUSHED: M README.md;
@@ -93,6 +99,8 @@ berarti aman (push = perubahanmu ter-upload; pull = update teman ter-download).
 | Folder/file teman gak muncul | Tunggu ~2 detik; kalau masih hilang, `git pull` sekali (lihat catatan “sudah join”) |
 | Mau jeda sync sementara | `Stop-ScheduledTask -TaskName autosync-projek-kriptografi` |
 | Konflik (teman edit file sama) | Lihat **Aturan kolaborasi** di bawah |
+| File teman **tidak masuk** ke PC-mu | Tunggu ~2 detik. Masih hilang → jalankan sekali `git pull` di folder repo. Masih hilang → **file teman belum ke-push** (bukan salah pull-mu) — minta teman jalankan `cek-sync.ps1` |
+| File-ku **tidak ke-push** ke GitHub | Lihat `.autosync.log` → baris `PUSH FAIL` / `COMMIT_OK_PUSH_FAIL`. Paling sering: **belum login GitHub**. Fix: buka PowerShell di folder repo → `git push` → login popup → centang remember. Lalu jalankan `powershell -ExecutionPolicy Bypass -File .\cek-sync.ps1` |
 
 ---
 
@@ -132,6 +140,7 @@ projek-kriptografi-1/
 ├── Projek Kriptografi 1      # file tugas utama
 ├── README.md                 # file ini
 ├── join.ps1                  # ⚡ plug & play (1 baris PowerShell)
+├── cek-sync.ps1              # diagnosa 1 tombol (auth, task, log, push)
 ├── GABUNG.bat                # klik dua kali (kalau folder sudah ada)
 ├── join-local.ps1            # launcher GABUNG.bat
 ├── auto-sync.ps1             # watcher auto-commit + pull + push (Windows)
