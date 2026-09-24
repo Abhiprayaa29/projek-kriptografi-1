@@ -156,6 +156,8 @@ while ($true) {
             $script:lastPullErr = ''
         }
 
+        $aheadBefore = Get-AheadCount
+
         $push = Invoke-Git push
         $pushOk = ($push.Code -eq 0)
         if (-not $pushOk) {
@@ -176,6 +178,9 @@ while ($true) {
         }
         elseif ($before -and $after -and $before -ne $after) {
             Write-Log 'PULLED: update dari GitHub'
+        }
+        elseif ($aheadBefore -gt 0 -and $pushOk) {
+            Write-Log ("PUSHED: push {0} commit lokal (tree bersih)" -f $aheadBefore)
         }
     }
     catch {
