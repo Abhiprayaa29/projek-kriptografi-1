@@ -107,7 +107,7 @@ berarti aman (push = perubahanmu ter-upload; pull = update teman ter-download).
 | File teman **tidak masuk** ke PC-mu | Tunggu ~2 detik. Masih hilang → jalankan sekali `git pull` di folder repo. Masih hilang → **file teman belum ke-push** (bukan salah pull-mu) — minta teman jalankan `cek-sync.ps1` |
 | File-ku **tidak ke-push** ke GitHub | Lihat `.autosync.log` → baris `PUSH FAIL` / `COMMIT_OK_PUSH_FAIL`. Paling sering: **belum login GitHub**. Fix: buka PowerShell di folder repo → `git push` → login popup → centang remember. Lalu jalankan `powershell -ExecutionPolicy Bypass -File .\cek-sync.ps1` |
 | Log bilang `timeout after 45s (proses git di-kill)` | Git sempat hang (biasanya nunggu popup login yang tidak muncul di jendela Hidden). Fix: buka PowerShell **interaktif** di folder repo → `git push` → login sekali → centang remember. Setelah itu restart task: `Stop-ScheduledTask -TaskName autosync-projek-kriptografi` lalu `Start-ScheduledTask ...`. |
-| Sync macet total (log cuma `watcher started`) | `Stop-ScheduledTask -TaskName autosync-projek-kriptografi` → `Start-ScheduledTask ...` → tunggu ~10 detik → `cek-sync.ps1`. Kalau masih sama, kirim `Get-Content .autosync.log -Tail 30` |
+| Sync macet total (log cuma `watcher started`) atau error parameter di log | **1 eksekusi:** `powershell -NoProfile -ExecutionPolicy Bypass -File .\fix-sync.ps1` (pull fix + restart task + diagnosa sekaligus). Kalau masih sama, paste hasilnya ke chat. |
 
 ---
 
@@ -150,6 +150,7 @@ projek-kriptografi-1/
 ├── README.md                 # file ini
 ├── join.ps1                  # ⚡ plug & play (1 baris PowerShell)
 ├── cek-sync.ps1              # diagnosa 1 tombol (auth, task, log, push)
+├── fix-sync.ps1              # 1 eksekusi: pull fix + restart watcher + diagnosa
 ├── GABUNG.bat                # klik dua kali (kalau folder sudah ada)
 ├── join-local.ps1            # launcher GABUNG.bat
 ├── auto-sync.ps1             # watcher auto-commit + pull + push (Windows; timeout 45s anti-hang)
