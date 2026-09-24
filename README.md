@@ -278,7 +278,7 @@ Tanpa invite, `join.ps1` / `git clone` gagal (403). Dua cara, hasilnya sama.
 
 **Via web (paling mudah, di browser mana pun):**
 
-1. Buka https://github.com/<OWNER>/<REPO>/settings/access
+1. Buka `https://github.com/<OWNER>/<REPO>/settings/access`
 2. Klik **Add people**
 3. Ketik username / email GitHub teman → pilih permission **Write** → **Add**
 4. Kirim link undangan ke teman; dia harus klik **Accept invitation**
