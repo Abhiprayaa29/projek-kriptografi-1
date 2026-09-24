@@ -137,7 +137,7 @@ auto-sync  ──polling tiap 2 detik──▶  ada perubahan lokal?
 - Offline: commit lokal dulu, push/pull menyusul begitu online.
 - Teman edit file yang sama: otomatis `pull --rebase` lalu push ulang.
 - Nama di pesan commit = identitas git masing-masing (otomatis dari nama Windows).
-- **Anti-hang:** tiap perintah git (`pull`/`push`) diberi timeout — Windows **45 detik**, Linux owner **30 detik**; kalau hang (misal nunggu login / network macet), proses di-kill → masuk log sebagai `FAIL ... timeout` → loop tetap jalan dan coba lagi siklus berikutnya. Watcher tidak pernah macet diam-diam.
+- **Anti-hang:** tiap perintah git (`pull`/`push`) diberi timeout (Windows **45 detik**, Linux owner **30 detik**); kalau hang (misal nunggu login / network macet), proses di-kill → masuk log sebagai `FAIL ... timeout` → loop tetap jalan dan coba lagi siklus berikutnya. Watcher tidak pernah macet diam-diam.
 - Setiap `push` yang sukses selalu tercatat di log (`PUSHED: ...`), termasuk saat tree sudah bersih tapi masih ada commit lokal yang belum ke GitHub.
 
 ---
