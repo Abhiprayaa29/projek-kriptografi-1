@@ -322,12 +322,3 @@ Stop/start: `systemctl --user stop|start autosync-projek-kriptografi`
 Anti-hang di Linux: `timeout 30` pada `git pull` / `git push` (variabel `GIT_TIMEOUT_SEC` di `auto-sync.sh`).
 
 Log owner: buka `.autosync.log` di folder repo (baris `PUSHED` / `PULLED` / `FAIL`).
-
----
-
-## Linux (owner) [ringkas]
-
-```bash
-bash setup-autosync.sh   # sama dengan langkah 4 di atas
-systemctl --user stop|start autosync-projek-kriptografi
-```
