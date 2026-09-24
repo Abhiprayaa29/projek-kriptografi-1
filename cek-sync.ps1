@@ -2,6 +2,10 @@
 #   powershell -NoProfile -ExecutionPolicy Bypass -File .\cek-sync.ps1
 # Output bisa di-copy ke chat grup kalau sync bermasalah.
 $ErrorActionPreference = 'Continue'
+# Fail-fast di jendela Hidden / non-interaktif: jangan hang nunggu popup login.
+$env:GIT_TERMINAL_PROMPT = '0'
+$env:GCM_INTERACTIVE     = 'Never'
+$env:GIT_ASKPASS         = 'echo'
 $RepoDir  = if ($PSScriptRoot) { $PSScriptRoot } else { (Get-Location).Path }
 $TaskName = 'autosync-projek-kriptografi'
 $fail = 0
