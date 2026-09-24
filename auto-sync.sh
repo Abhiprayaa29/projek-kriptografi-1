@@ -58,18 +58,17 @@ sync_once() {
   before="$(git rev-parse HEAD 2>/dev/null || true)"
 
   # Retry sekali untuk race transient "Cannot rebase onto multiple branches"
-  # (terjadi bila ada git pull paralel dari luar flock — mis. manual/VS Code).
-  if ! pull_err="$(git pull --rebase --autostash 2>&1)"; then
-    if [[ "$pull_err" == *"Cannot rebase onto multiple branches"* ]]; then
-      sleep 1
-      pull_err="$(git pull --rebase --autostash 2>&1)" || true
+  # (bisa terjadi bila ada git pull paralel dari luar flock — manual/VS Code).
+  pull_ok=0
+  if pull_err="$(git pull --rebase --autostash 2>&1)"; then
+    pull_ok=1
+  elif [[ "$pull_err" == *"Cannot rebase onto multiple branches"* ]]; then
+    sleep 1
+    if pull_err="$(git pull --rebase --autostash 2>&1)"; then
+      pull_ok=1
     fi
   fi
-  if [[ -n "$pull_err" ]] && ! git pull --rebase --autostash >/dev/null 2>&1; then
-    : # pull_err masih berisi galat asli dari attempt terakhir yang gagal
-  fi
-  # Hitung ulang: cek apakah pull terakhir sukses via exit code asli
-  if pull_err="$(git pull --rebase --autostash 2>&1)"; then
+  if [[ "$pull_ok" -eq 1 ]]; then
     PULL_FAIL_N=0
     LAST_PULL_ERR=""
   else
