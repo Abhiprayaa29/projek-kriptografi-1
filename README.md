@@ -146,6 +146,22 @@ auto-sync  ──polling tiap 2 detik──▶  ada perubahan lokal?
 
 ---
 
+## Batasan & peringatan
+
+Auto-sync ini **solusi praktis untuk kasus spesifik** (tugas kuliah, kelompok kecil, file dokumen, semua anggota mau pakai Ctrl+S lalu lupa), **bukan best practice universal** untuk proyek software serius.
+
+Yang perlu diingat sebelum memakainya di proyek lain:
+
+1. **Semua file ikut ke-commit tanpa seleksi.** Watcher menjalankan `git add -A`: file draft setengah jadi, file besar, atau file rahasia yang belum masuk `.gitignore` ikut ter-commit dan ter-push. `.gitignore` adalah satu-satunya penyaring.
+2. **History tidak bermakna.** Pesan commit selalu `auto-sync: <timestamp>`, jadi `git log` tidak menceritakan apa yang berubah dan kenapa. Debugging lewat history (bisect, blame) jadi tidak berguna.
+3. **Tidak ada gate sebelum push.** Tidak ada review, tidak ada PR, tidak ada CI: apa pun yang ke-commit langsung permanen di `main` dalam ~2 detik.
+
+Periode 2 detik sendiri bukan akar masalahnya (interval lebih lama memberi risiko yang sama); yang menentukan adalah tiga poin di atas.
+
+**Kalau proyeknya serius**, pakai workflow normal: commit atomic dengan message yang jelas, stage manual (pilih file satu per satu), lalu push lewat PR + review. Auto-sync di workflow seperti itu cukup untuk `pull` saja; push biar manual.
+
+---
+
 ## Struktur repo
 
 ```
