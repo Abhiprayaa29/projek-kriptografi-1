@@ -2,63 +2,75 @@
 
 Tugas mata kuliah **Kriptografi — Semester 5**.
 
-Repositori ini dipakai bareng-bareng anggota kelompok. Setiap anggota
-yang sudah setup auto-sync tinggal **simpan file di VS Code**, perubahan
-akan otomatis di-commit dan di-push ke GitHub.
+Repositori ini dipakai bareng-bareng anggota kelompok (**semuanya Windows**).
+Setelah setup sekali, tinggal **simpan file di VS Code (Ctrl+S)** — perubahan
+otomatis di-commit dan di-push ke GitHub.
 
 | | |
 |---|---|
 | Repo | https://github.com/Abhiprayaa29/projek-kriptografi-1 |
 | Branch utama | `main` |
-| Auto-sync | `auto-sync.sh` + systemd user service |
+| OS anggota | Windows |
+| Auto-sync | `auto-sync.ps1` + Scheduled Task |
 
 ---
 
-## Setup untuk anggota kelompok (Linux)
+## Setup untuk anggota kelompok (Windows)
 
 ### Prasyarat
 
-- `git`
-- Akun GitHub + akses push ke repo ini (minta owner invite sebagai collaborator:
-  repo → **Settings** → **Collaborators** → **Add people**)
-- VS Code
-- systemd (biasanya sudah ada di Ubuntu/Debian/Fedora)
+- **Git for Windows** — https://git-scm.com/download/win
+  (saat install, pilih *Git Bash Here* / default saja)
+- **VS Code** — https://code.visualstudio.com
+- Akun GitHub + akses push ke repo ini  
+  (minta owner invite: repo → **Settings** → **Collaborators** → **Add people**)
 
 ### Langkah 1 — clone repo
 
-```bash
+Buka **Git Bash** (klik kanan di folder mana pun → *Git Bash Here*), atau
+**PowerShell** / **CMD**:
+
+```bat
 git clone https://github.com/Abhiprayaa29/projek-kriptografi-1.git
 cd projek-kriptografi-1
 ```
 
-> Lebih suka taruh di folder kuliah? Pindahkan saja hasil clone ke
-> `~/kuliah/semester-5/kriptografi` (atau path favoritmu), lalu `cd` ke sana.
-> Path bebas — script setup otomatis menyesuaikan.
+> Lokasi bebas. Contoh enak di `D:\Kuliah\semester-5\kriptografi`  
+> (clone dulu di mana saja, lalu pindahkan folder-nya kalau mau).
 
 ### Langkah 2 — identitas git (sekali saja)
 
-```bash
+Di terminal yang sama:
+
+```bat
 git config --global user.name  "Nama Kamu"
 git config --global user.email "email-kamu@contoh.com"
 ```
 
+`user.name` dipakai di pesan commit — jadi di GitHub kelihatan siapa yang
+mengubah apa.
+
 ### Langkah 3 — setup auto-sync (sekali saja)
 
-```bash
-bash setup-autosync.sh
+**Cara termudah:** buka folder hasil clone di File Explorer,  
+**klik dua kali `setup-autosync.bat`**.
+
+Atau dari terminal di dalam folder repo:
+
+```bat
+powershell -NoProfile -ExecutionPolicy Bypass -File .\setup-autosync.ps1
 ```
 
 Script ini akan:
 
 1. Cek `git` + identitas git
-2. Memberi izin execute pada `auto-sync.sh`
-3. Memasang systemd user service
-   (`~/.config/systemd/user/autosync-projek-kriptografi.service`)
-4. Mengaktifkan service (jalan otomatis tiap login)
+2. Mendaftarkan **Scheduled Task** `autosync-projek-kriptografi`
+   (jalan otomatis setiap kamu login Windows)
+3. Menjalankan auto-sync sekarang juga
 
 ### Langkah 4 — buka di VS Code
 
-```bash
+```bat
 code .
 ```
 
@@ -70,12 +82,11 @@ Selesai. Dari sekarang:
 
 ### Cek apakah jalan
 
-```bash
-# status service
-systemctl --user status autosync-projek-kriptografi
+PowerShell:
 
-# lihat log sync terakhir
-tail -f .autosync.log
+```powershell
+Get-ScheduledTask -TaskName autosync-projek-kriptografi | Format-Table TaskName, State
+Get-Content .autosync.log -Tail 20
 ```
 
 Contoh baris log yang berhasil:
@@ -83,6 +94,27 @@ Contoh baris log yang berhasil:
 ```
 2026-09-24 17:34:01 PUSHED: M "Projek Kriptografi 1"; ?? tambahan.txt;
 ```
+
+### Stop / start / hapus auto-sync
+
+PowerShell (dari folder repo):
+
+```powershell
+Stop-ScheduledTask  -TaskName autosync-projek-kriptografi   # jeda
+Start-ScheduledTask -TaskName autosync-projek-kriptografi   # lanjut
+Unregister-ScheduledTask -TaskName autosync-projek-kriptografi -Confirm:$false  # hapus
+```
+
+Atau: **Task Scheduler** → *Task Scheduler Library* →
+`autosync-projek-kriptografi` → Run / Disable / Delete.
+
+### Auto-sync tanpa Scheduled Task (opsional)
+
+Kalau tidak mau daftar Task Scheduler, setiap kali mau mulai sync:
+
+1. Klik dua kali **`start-auto-sync.bat`**
+2. Biarkan jendela PowerShell hitam itu terbuka
+3. Tutup jendela = sync berhenti
 
 ---
 
@@ -95,67 +127,44 @@ Kalau tidak mau auto-sync, pakai Source Control bawaan VS Code:
 3. File yang diubah / file baru otomatis muncul sebagai perubahan
 4. Tulis pesan commit → **Commit** → **Push**
 
-Atau via terminal:
+Atau via terminal (Git Bash / PowerShell):
 
-```bash
+```bat
 git add -A
 git commit -m "jenis perubahan: keterangan singkat"
-git pull --rebase --autostash   # selalu tarik dulu sebelum push
+git pull --rebase --autostash
 git push
 ```
 
----
-
-## macOS / Windows
-
-`setup-autosync.sh` butuh systemd (Linux). Di macOS/Windows:
-
-- **Cara termudah:** pakai **Source Control VS Code** (langkah manual di atas), atau
-- **GitHub Desktop**, atau
-- Jalankan watcher manual di Git Bash / WSL:
-
-  ```bash
-  bash auto-sync.sh
-  ```
-
-  (biarkan terminal itu terbuka selama mau auto-sync)
+> Selalu `git pull --rebase --autostash` **sebelum** push, supaya tidak
+> bentrok dengan commit teman.
 
 ---
 
-## Cara kerja auto-sync (anggota kelompok wajib tahu)
+## Cara kerja auto-sync
 
 ```
-auto-sync.sh  ──polling tiap 2 detik──▶  ada perubahan?
+auto-sync.ps1  ──polling tiap 2 detik──▶  ada perubahan?
                                             │ ya
                                             ▼
                                      git add -A
                                             │
                                             ▼
-                              git commit "auto-sync: <waktu> [<nama>]"
+                          git commit "auto-sync: <waktu> [<nama>]"
                                             │
                                             ▼
                                       git push  ──▶  GitHub
-                                            │ gagal (mis. sudah ada
-                                            │ push dari teman)
+                                            │ gagal (mis. teman push duluan)
                                             ▼
-                              git pull --rebase --autostash  →  push ulang
+                       git pull --rebase --autostash  →  push ulang
 ```
 
-- Lock file `.autosync.lock` mencegah dua proses sync bentrok.
+- Mutex mencegah dua instance auto-sync jalan bareng.
 - Kalau offline: commit tetap tersimpan lokal, push menyusul otomatis
-  saat service jalan lagi dan ada koneksi.
+  saat ada koneksi dan watcher masih jalan.
 - Kalau push ditolak karena teman push duluan: script otomatis
   `pull --rebase` lalu push ulang.
-- Identitas commit memakai `git config user.name` masing-masing —
-  jadi kelihatan siapa yang mengubah apa di riwayat commit.
-
-### Stop / start / matikan
-
-```bash
-systemctl --user stop autosync-projek-kriptografi     # jeda
-systemctl --user start autosync-projek-kriptografi    # lanjut
-systemctl --user disable --now autosync-projek-kriptografi  # matikan total
-```
+- Identitas commit memakai `git config user.name` masing-masing.
 
 ---
 
@@ -165,8 +174,12 @@ systemctl --user disable --now autosync-projek-kriptografi  # matikan total
 projek-kriptografi-1/
 ├── Projek Kriptografi 1      # file tugas utama
 ├── README.md                 # file ini
-├── auto-sync.sh              # watcher auto-commit + push
-├── setup-autosync.sh         # setup sekali jalan untuk anggota
+├── auto-sync.ps1             # watcher auto-commit + push (Windows)
+├── setup-autosync.ps1        # setup Scheduled Task
+├── setup-autosync.bat        # klik dua kali = setup
+├── start-auto-sync.bat       # klik dua kali = sync sekali jalan
+├── auto-sync.sh              # versi Linux (owner)
+├── setup-autosync.sh         # versi Linux (owner)
 ├── .gitignore
 └── .autosync.log             # log (tidak di-commit)
 ```
@@ -176,16 +189,36 @@ projek-kriptografi-1/
 ## Aturan kolaborasi
 
 1. **Jangan force-push** — merusak commit anggota lain.
-2. Kalau terjadi konflik saat `pull --rebase`: selesaikan manual di VS Code
-   (panel Source Control menandai file konflik), lalu
-   ```bash
-   git add .
-   git rebase --continue
-   git push
+2. Kalau terjadi **konflik** saat pull:
+   - Hentikan dulu auto-sync:
+     `Stop-ScheduledTask -TaskName autosync-projek-kriptografi`
+   - Selesaikan konflik di VS Code (Source Control menandai file konflik)
+   - Lalu:
+     ```bat
+     git add .
+     git rebase --continue
+     git push
+     ```
+   - Nyalakan lagi: `Start-ScheduledTask -TaskName autosync-projek-kriptografi`
+3. File rahasia (API key, `.env`) dan file besar jangan di-commit —
+   tambahkan ke `.gitignore`.
+4. Sebelum presentasi / deadline: pastikan bersih dan sudah ke-push semua:
+   ```bat
+   git status
+   git log origin/main..HEAD
    ```
-   Matikan dulu auto-sync selama menyelesaikan konflik:
-   `systemctl --user stop autosync-projek-kriptografi`
-   Setelah selesai: `systemctl --user start autosync-projek-kriptografi`
-3. File besar / rahasia (API key, `.env`) jangan di-commit — tambahkan ke `.gitignore`.
-4. Sebelum presentasi / deadline: pastikan `git status` bersih dan
-   `git log origin/main..HEAD` kosong (artinya semua sudah ke-push).
+   `git status` kosong + `git log ...HEAD` kosong = aman.
+
+---
+
+## Linux (owner)
+
+Anggota Windows pakai panduan di atas. Di Linux:
+
+```bash
+git config --global user.name  "Nama"
+git config --global user.email "email@contoh.com"
+bash setup-autosync.sh   # systemd user service
+```
+
+Stop/start: `systemctl --user stop|start autosync-projek-kriptografi`

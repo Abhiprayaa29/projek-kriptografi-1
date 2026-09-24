@@ -12,3 +12,4 @@ Thumbs.db
 # Auto-sync runtime
 .autosync.lock
 .autosync.log
+*.log
