@@ -297,7 +297,7 @@ gh api repos/<OWNER>/<REPO>/collaborators --jq '.[].login'
 
 ### 2. Share link setup ke anggota
 
-Kirim **1 baris ini** ke teman (Windows):
+Kirim **1 baris ini** ke teman (Windows) (ganti `<OWNER>` / `<REPO>` dulu dengan URL asli repo):
 
 ```text
 irm https://raw.githubusercontent.com/<OWNER>/<REPO>/main/join.ps1 | iex
