@@ -3,6 +3,12 @@
 # Jalankan: powershell -NoProfile -ExecutionPolicy Bypass -File .\auto-sync.ps1
 $ErrorActionPreference = 'Continue'
 
+# Jangan pernah menunggu prompt di jendela Hidden Scheduled Task:
+# gagal cepat + masuk log, bukan hang tanpa jejak.
+$env:GIT_TERMINAL_PROMPT = '0'
+$env:GCM_INTERACTIVE     = 'Never'
+$env:GIT_ASKPASS         = 'echo'
+
 $RepoDir   = $PSScriptRoot
 $LogFile   = Join-Path $RepoDir '.autosync.log'
 $IntervalSec = 2
