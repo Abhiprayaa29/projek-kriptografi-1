@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Auto-commit + auto-push setiap ada perubahan file di folder ini.
+# Auto-commit + auto-push + auto-pull setiap ada perubahan di folder ini.
 # Dijalankan oleh systemd user service: autosync-projek-kriptografi.service
 set -uo pipefail
 
@@ -22,43 +22,33 @@ sync_once() {
 
   cd "$REPO_DIR" || return 1
 
-  if [[ -z "$(git status --porcelain 2>/dev/null)" ]]; then
-    # Lokal bersih → tarik update teman (folder/file baru di GitHub).
-    local before after
-    before="$(git rev-parse HEAD 2>/dev/null || true)"
-    if git pull --rebase --autostash --ff-only >/dev/null 2>&1; then
-      after="$(git rev-parse HEAD 2>/dev/null || true)"
-      if [[ -n "$before" && -n "$after" && "$before" != "$after" ]]; then
-        log "PULLED: update dari GitHub"
-      fi
+  local dirty=0
+  local changed=""
+  if [[ -n "$(git status --porcelain 2>/dev/null)" ]]; then
+    # Tunggu sebentar supaya file yang sedang disimpan selesai ditulis.
+    sleep "$SETTLE_SEC"
+    if [[ -n "$(git status --porcelain 2>/dev/null)" ]]; then
+      dirty=1
+      changed="$(git status --porcelain | head -20 | tr '\n' '; ')"
+      git add -A || true
+      git commit -m "auto-sync: $(date '+%Y-%m-%d %H:%M:%S') [$(git config user.name || echo unknown)]" >/dev/null 2>&1 || true
     fi
-    flock -u 9
-    return 0
   fi
 
-  # Tunggu sebentar supaya file yang sedang disimpan selesai ditulis.
-  sleep "$SETTLE_SEC"
-  if [[ -z "$(git status --porcelain 2>/dev/null)" ]]; then
-    flock -u 9
-    return 0
-  fi
+  local before after
+  before="$(git rev-parse HEAD 2>/dev/null || true)"
+  git pull --rebase --autostash >/dev/null 2>&1 || true
+  git push >/dev/null 2>&1 || true
+  after="$(git rev-parse HEAD 2>/dev/null || true)"
 
-  local changed
-  changed="$(git status --porcelain | head -20 | tr '\n' '; ')"
-
-  if git add -A; then
-    if git commit -m "auto-sync: $(date '+%Y-%m-%d %H:%M:%S') [$(git config user.name || echo unknown)]" >/dev/null 2>&1; then
-      git pull --rebase --autostash >/dev/null 2>&1 || true
-      if git push >/dev/null 2>&1; then
-        log "PUSHED: $changed"
-      elif git pull --rebase --autostash >/dev/null 2>&1 && git push >/dev/null 2>&1; then
-        log "PUSHED_AFTER_REBASE: $changed"
-      else
-        log "COMMIT_OK_PUSH_FAIL (offline / conflict?): $changed"
-      fi
+  if [[ "$dirty" -eq 1 ]]; then
+    if git push >/dev/null 2>&1; then
+      log "PUSHED: $changed"
+    else
+      log "COMMIT_OK_PUSH_FAIL (offline / conflict?): $changed"
     fi
-  else
-    log "COMMIT_FAIL: $changed"
+  elif [[ -n "$before" && -n "$after" && "$before" != "$after" ]]; then
+    log "PULLED: update dari GitHub"
   fi
 
   flock -u 9
