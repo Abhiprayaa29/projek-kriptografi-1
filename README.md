@@ -201,6 +201,9 @@ auto-sync.ps1  ──polling tiap 2 detik──▶  ada perubahan?
 projek-kriptografi-1/
 ├── Projek Kriptografi 1      # file tugas utama
 ├── README.md                 # file ini
+├── join.ps1                  # ⚡ plug & play (1 baris PowerShell)
+├── GABUNG.bat                # klik dua kali (kalau folder sudah ada)
+├── join-local.ps1            # launcher GABUNG.bat
 ├── auto-sync.ps1             # watcher auto-commit + push (Windows)
 ├── setup-autosync.ps1        # setup Scheduled Task
 ├── setup-autosync.bat        # klik dua kali = setup
