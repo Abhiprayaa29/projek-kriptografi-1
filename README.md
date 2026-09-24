@@ -89,15 +89,24 @@ berarti aman.
 
 ```
 auto-sync  ──polling tiap 2 detik──▶  ada perubahan lokal?
-                                        │ ya                    │ tidak (lokal bersih)
-                                        ▼                       ▼
-                                 git add -A              git pull (ambil update teman)
-                                        │
-                                        ▼
-                          git commit + pull + push ──▶ GitHub
+                                        │ ya                     │ tidak
+                                        ▼                        ▼
+                                 git add + commit          (lokal bersih)
+                                        │                        │
+                                        └──────────┬─────────────┘
+                                                   ▼
+                                    git pull --rebase + git push
+                                                   │
+                                    ┌──────────────┴──────────────┐
+                                    ▼                             ▼
+                             ada commit lokal            hanya remote yang baru
+                                    │                             │
+                                    ▼                             ▼
+                                 PUSHED                    PULLED (update teman
+                                                            muncul ~2 detik)
 ```
 
-- **Dua arah:** push perubahanmu **dan** pull perubahan teman (folder/file baru muncul otomatis ~2 detik).
+- **Dua arah:** push perubahanmu **dan** pull perubahan teman (folder/file baru muncul otomatis).
 - Jalan otomatis **setiap login Windows** (Scheduled Task).
 - Offline: commit lokal dulu, push/pull menyusul begitu online.
 - Teman edit file yang sama: otomatis `pull --rebase` lalu push ulang.
