@@ -15,7 +15,34 @@ otomatis di-commit dan di-push ke GitHub.
 
 ---
 
-## Setup untuk anggota kelompok (Windows)
+## ⚡ Plug & Play (yang ini aja, cukup)
+
+Buka **PowerShell** (Start Menu → ketik `PowerShell`), **copy-paste satu baris ini**, Enter:
+
+```powershell
+irm https://raw.githubusercontent.com/Abhiprayaa29/projek-kriptografi-1/main/join.ps1 | iex
+```
+
+Script akan otomatis:
+
+1. Install **Git** kalau belum ada (via winget)
+2. Minta **nama + email GitHub** kamu (sekali saja)
+3. Clone repo ke `Documents\Kuliah\semester-5\kriptografi`
+4. Pasang **auto-sync** (jalan tiap login)
+5. Buka **VS Code** di folder repo
+
+Selesai. Setelah itu: **Ctrl+S** → otomatis push ke GitHub.
+
+> **Syarat:** invite dulu sebagai collaborator  
+> (owner: repo → Settings → Collaborators → Add people).  
+> Tanpa invite, clone/push akan gagal (403).
+
+**Alternatif kalau sudah punya folder repo** ( hasil clone manual / ZIP ):  
+klik dua kali **`GABUNG.bat`** di dalam folder itu.
+
+---
+
+## Setup manual (Windows, langkah demi langkah)
 
 ### Prasyarat
 
