@@ -67,6 +67,18 @@ Register-ScheduledTask `
 Start-ScheduledTask -TaskName $TaskName
 Start-Sleep -Seconds 2
 
+# Warmup auth di jendela INTERAKTIF ini — popup Git Credential Manager
+# tidak muncul dari Scheduled Task yang window-nya Hidden.
+Write-Host 'Cek akses GitHub (popup login mungkin muncul sekali)...' -ForegroundColor Cyan
+$null = & git ls-remote origin HEAD 2>&1
+if ($LASTEXITCODE -ne 0) {
+    Write-Host 'Belum bisa akses remote. Jalankan SEKALI di jendela ini:' -ForegroundColor Yellow
+    Write-Host '  git push' -ForegroundColor Yellow
+    Write-Host 'lalu login GitHub di popup, centang remember, tutup, jalankan ulang setup ini.' -ForegroundColor Yellow
+} else {
+    Write-Host 'Akses GitHub OK.' -ForegroundColor Green
+}
+
 $task = Get-ScheduledTask -TaskName $TaskName
 Write-Host ''
 Write-Host ('Task "{0}" state: {1}' -f $TaskName, $task.State) -ForegroundColor Green
