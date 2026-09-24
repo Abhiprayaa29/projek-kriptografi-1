@@ -27,15 +27,18 @@ function Write-Log {
 }
 
 function Invoke-Git {
+    # PS 5.1: jangan campur ValueFromRemainingArguments + param typed lain
+    # (argumen positional seperti "pull" bisa salah diikat ke param typed).
+    # Semua argumen git masuk lewat named -Args; timeout via -Timeout (opsional).
     param(
-        [Parameter(ValueFromRemainingArguments = $true)][string[]]$GitArgs,
-        [int]$TimeoutSec = 0
+        [Parameter(Mandatory = $true)][string[]]$Args,
+        [int]$Timeout = 0
     )
-    if ($TimeoutSec -le 0) { $TimeoutSec = $GitTimeoutSec }
+    $TimeoutSec = if ($Timeout -gt 0) { $Timeout } else { $GitTimeoutSec }
 
     $psi = New-Object System.Diagnostics.ProcessStartInfo
     $psi.FileName = 'git'
-    $argLine = ($GitArgs | ForEach-Object {
+    $argLine = ($Args | ForEach-Object {
         if ($_ -match '[\s"]') { '"' + ($_ -replace '"', '\"') + '"' } else { $_ }
     }) -join ' '
     $psi.Arguments = $argLine
@@ -86,12 +89,12 @@ function Invoke-Git {
 }
 
 function Get-Head {
-    $r = Invoke-Git rev-parse HEAD -TimeoutSec 15
+    $r = Invoke-Git -Args @('rev-parse', 'HEAD') -Timeout 15
     if ($r.Code -eq 0 -and $r.Out) { $r.Out } else { $null }
 }
 
 function Get-AheadCount {
-    $r = Invoke-Git rev-list --count 'origin/main..HEAD' -TimeoutSec 15
+    $r = Invoke-Git -Args @('rev-list', '--count', 'origin/main..HEAD') -Timeout 15
     if ($r.Code -eq 0 -and $r.Out -match '^\d+$') { [int]$r.Out } else { 0 }
 }
 
@@ -148,7 +151,7 @@ while ($true) {
 
         $before = Get-Head
 
-        $pull = Invoke-Git pull --rebase --autostash
+        $pull = Invoke-Git -Args @('pull', '--rebase', '--autostash')
         if ($pull.Code -ne 0) {
             Write-FailOnce -Kind 'PULL' -Message $pull.Err -LastMsg ([ref]$script:lastPullErr) -Count ([ref]$script:pullFailN)
         } else {
@@ -160,7 +163,7 @@ while ($true) {
         # padahal tree bersih (tanpa ini, push no-op/commit lokal tidak pernah muncul di log).
         $aheadBefore = Get-AheadCount
 
-        $push = Invoke-Git push
+        $push = Invoke-Git -Args @('push')
         $pushOk = ($push.Code -eq 0)
         if (-not $pushOk) {
             Write-FailOnce -Kind 'PUSH' -Message $push.Err -LastMsg ([ref]$script:lastPushErr) -Count ([ref]$script:pushFailN)
