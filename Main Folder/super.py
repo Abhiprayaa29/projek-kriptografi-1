@@ -550,4 +550,3 @@ with tab_dekripsi:
                 st.error(f"Terjadi kesalahan tak terduga: {e}")
 
 st.divider()
-st.caption("Dibuat dengan Streamlit — Modul Super Enkripsi (Caesar → Vigenère → XOR → RSA)")
