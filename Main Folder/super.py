@@ -207,7 +207,7 @@ def super_encrypt(plaintext: str, caesar_shift: int, vigenere_key: str,
         "hasil_vigenere": tahap2_vigenere,
         "bytes_xor": tahap3_xor,
         "ciphertext_angka": tahap4_rsa,
-        "ciphertext_string": " ".join(str(n) for n in tahap4_rsa),
+        "ciphertext_string": "".join(str(n) for n in tahap4_rsa),
     }
 
 
@@ -263,12 +263,12 @@ def super_decrypt(ciphertext_str: str, caesar_shift: int, vigenere_key: str,
 
 def format_bytes_hex(data: bytes) -> str:
     """Menampilkan bytes dalam format hex yang mudah dibaca, contoh: 4A 2F 0B."""
-    return " ".join(f"{b:02X}" for b in data)
+    return "".join(f"{b:02X}"for b in data)
 
 
 def format_bytes_dec(data: bytes) -> str:
     """Menampilkan bytes dalam format desimal, contoh: 74 47 11."""
-    return " ".join(str(b) for b in data)
+    return "".join(str(b) for b in data)
 
 
 PRESET_RSA = {
@@ -325,9 +325,9 @@ def hitung_kunci_rsa(p: int, q: int, e: int):
 # BAGIAN 8: APLIKASI STREAMLIT (UI)
 # ==================================================================================
 
-st.set_page_config(page_title="Super Enkripsi", page_icon="🔐", layout="wide")
+st.set_page_config(page_title="Super Enkripsi", layout="wide")
 
-st.title("🔐 Super Enkripsi")
+st.title("Super Enkripsi")
 st.caption("Gabungan 4 Algoritma Berlapis: Caesar → Vigenère → XOR → RSA")
 
 st.markdown(
@@ -344,9 +344,9 @@ st.divider()
 # ----------------------------------------------------------------------------------
 # PENGATURAN KUNCI (dipakai bersama oleh mode Enkripsi & Dekripsi)
 # ----------------------------------------------------------------------------------
-st.subheader("⚙️ Pengaturan Kunci")
+st.subheader("Pengaturan Kunci")
 
-with st.expander("🔑 Kunci Caesar & Vigenère & XOR", expanded=True):
+with st.expander("Kunci Caesar & Vigenère & XOR", expanded=True):
     col1, col2, col3 = st.columns(3)
     with col1:
         caesar_shift = st.number_input(
@@ -367,7 +367,7 @@ with st.expander("🔑 Kunci Caesar & Vigenère & XOR", expanded=True):
             help="Bisa berupa teks bebas, akan diubah ke byte UTF-8."
         )
 
-with st.expander(" Kunci RSA (n, e, d)", expanded=True):
+with st.expander("Kunci RSA (n, e, d)", expanded=True):
     opsi_rsa = st.radio(
         "Pilih metode penentuan kunci RSA:",
         ["Opsi A: Preset Otomatis", "Opsi B: Manual (p, q, e)"],
@@ -407,7 +407,7 @@ with st.expander(" Kunci RSA (n, e, d)", expanded=True):
 
         if errors:
             for err in errors:
-                st.error(f" {err}")
+                st.error(f"{err}")
         else:
             rsa_valid = True
             st.success(
@@ -420,7 +420,7 @@ st.divider()
 # ----------------------------------------------------------------------------------
 # MODE OPERASI: ENKRIPSI / DEKRIPSI
 # ----------------------------------------------------------------------------------
-tab_enkripsi, tab_dekripsi = st.tabs([" Mode Enkripsi", " Mode Dekripsi"])
+tab_enkripsi, tab_dekripsi = st.tabs(["Mode Enkripsi", "Mode Dekripsi"])
 
 # ============================== MODE ENKRIPSI ======================================
 with tab_enkripsi:
@@ -431,28 +431,28 @@ with tab_enkripsi:
         placeholder="Ketik atau tempel teks yang ingin dienkripsi di sini...",
     )
 
-    if st.button("🔒 Enkripsi Sekarang", type="primary", key="btn_enkripsi"):
+    if st.button("Enkripsi Sekarang", type="primary", key="btn_enkripsi"):
         # --- Validasi input dasar ---
         if not plaintext_input:
-            st.error(" Plaintext tidak boleh kosong.")
+            st.error("Plaintext tidak boleh kosong.")
         elif not vigenere_key.strip():
-            st.error(" Kunci Vigenère tidak boleh kosong.")
+            st.error("Kunci Vigenère tidak boleh kosong.")
         elif not xor_key:
-            st.error(" Kunci XOR tidak boleh kosong.")
+            st.error("Kunci XOR tidak boleh kosong.")
         elif not rsa_valid:
-            st.error(" Kunci RSA belum valid. Perbaiki pengaturan kunci RSA di atas terlebih dahulu.")
+            st.error("Kunci RSA belum valid. Perbaiki pengaturan kunci RSA di atas terlebih dahulu.")
         else:
             try:
                 hasil = super_encrypt(
                     plaintext_input, int(caesar_shift), vigenere_key, xor_key, rsa_e, rsa_n
                 )
 
-                st.success(" Enkripsi berhasil dilakukan!")
+                st.success("Enkripsi berhasil dilakukan!")
 
-                st.markdown("###  Ciphertext Final (deretan angka)")
+                st.markdown("### Ciphertext Final (deretan angka)")
                 st.code(hasil["ciphertext_string"], language="text")
 
-                st.markdown("###  Visualisasi Proses Bertahap")
+                st.markdown("### Visualisasi Proses Bertahap")
 
                 with st.expander("Tahap 1 — Caesar Cipher", expanded=False):
                     st.write(f"**Kunci shift:** {int(caesar_shift)}")
@@ -483,9 +483,9 @@ with tab_enkripsi:
                     st.code(hasil["ciphertext_string"], language="text")
 
             except ValueError as e:
-                st.error(f" Terjadi kesalahan: {e}")
+                st.error(f"Terjadi kesalahan: {e}")
             except Exception as e:
-                st.error(f" Terjadi kesalahan tak terduga: {e}")
+                st.error(f"Terjadi kesalahan tak terduga: {e}")
 
 # ============================== MODE DEKRIPSI ======================================
 with tab_dekripsi:
@@ -496,34 +496,34 @@ with tab_dekripsi:
         placeholder="Contoh: 187 45 231 98 ...",
     )
 
-    if st.button(" Dekripsi Sekarang", type="primary", key="btn_dekripsi"):
+    if st.button("Dekripsi Sekarang", type="primary", key="btn_dekripsi"):
         # --- Validasi input dasar ---
         if not ciphertext_input.strip():
-            st.error(" Ciphertext tidak boleh kosong.")
+            st.error("Ciphertext tidak boleh kosong.")
         elif not vigenere_key.strip():
-            st.error(" Kunci Vigenère tidak boleh kosong.")
+            st.error("Kunci Vigenère tidak boleh kosong.")
         elif not xor_key:
-            st.error(" Kunci XOR tidak boleh kosong.")
+            st.error("Kunci XOR tidak boleh kosong.")
         elif not rsa_valid:
-            st.error(" Kunci RSA belum valid. Perbaiki pengaturan kunci RSA di atas terlebih dahulu.")
+            st.error("Kunci RSA belum valid. Perbaiki pengaturan kunci RSA di atas terlebih dahulu.")
         else:
             try:
                 hasil = super_decrypt(
                     ciphertext_input, int(caesar_shift), vigenere_key, xor_key, rsa_d, rsa_n
                 )
 
-                st.success(" Dekripsi berhasil dilakukan!")
+                st.success("Dekripsi berhasil dilakukan!")
 
-                st.markdown("###  Plaintext Hasil Dekripsi")
+                st.markdown("### Plaintext Hasil Dekripsi")
                 st.code(hasil["plaintext_akhir"], language="text")
 
-                st.markdown("###  Visualisasi Proses Bertahap")
+                st.markdown("### Visualisasi Proses Bertahap")
 
                 with st.expander("Tahap 1 — Dekripsi RSA", expanded=False):
                     st.write(f"**Kunci privat:** d = {rsa_d}, n = {rsa_n}")
                     st.write("**Rumus:** M = C^d mod n, dihitung untuk setiap angka")
                     st.write("**Ciphertext angka (input):**")
-                    st.code(" ".join(str(n) for n in hasil["angka_list"]), language="text")
+                    st.code("".join(str(n) for n in hasil["angka_list"]), language="text")
                     st.write("**Hasil dekripsi RSA (byte, representasi Hex):**")
                     st.code(format_bytes_hex(hasil["bytes_hasil_rsa"]), language="text")
                     st.write("**Hasil dekripsi RSA (byte, representasi Desimal):**")
@@ -545,9 +545,9 @@ with tab_dekripsi:
                     st.code(hasil["plaintext_akhir"], language="text")
 
             except ValueError as e:
-                st.error(f" Terjadi kesalahan: {e}")
+                st.error(f"Terjadi kesalahan: {e}")
             except Exception as e:
-                st.error(f" Terjadi kesalahan tak terduga: {e}")
+                st.error(f"Terjadi kesalahan tak terduga: {e}")
 
 st.divider()
 st.caption("Dibuat dengan Streamlit — Modul Super Enkripsi (Caesar → Vigenère → XOR → RSA)")
