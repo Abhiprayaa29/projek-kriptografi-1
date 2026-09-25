@@ -452,7 +452,7 @@ with tab_enkripsi:
                 st.markdown("###  Ciphertext Final (deretan angka)")
                 st.code(hasil["ciphertext_string"], language="text")
 
-                st.markdown("### 🔍 Visualisasi Proses Bertahap")
+                st.markdown("###  Visualisasi Proses Bertahap")
 
                 with st.expander("Tahap 1 — Caesar Cipher", expanded=False):
                     st.write(f"**Kunci shift:** {int(caesar_shift)}")
@@ -483,9 +483,9 @@ with tab_enkripsi:
                     st.code(hasil["ciphertext_string"], language="text")
 
             except ValueError as e:
-                st.error(f"⚠️ Terjadi kesalahan: {e}")
+                st.error(f" Terjadi kesalahan: {e}")
             except Exception as e:
-                st.error(f"⚠️ Terjadi kesalahan tak terduga: {e}")
+                st.error(f" Terjadi kesalahan tak terduga: {e}")
 
 # ============================== MODE DEKRIPSI ======================================
 with tab_dekripsi:
@@ -496,7 +496,7 @@ with tab_dekripsi:
         placeholder="Contoh: 187 45 231 98 ...",
     )
 
-    if st.button("🔓 Dekripsi Sekarang", type="primary", key="btn_dekripsi"):
+    if st.button(" Dekripsi Sekarang", type="primary", key="btn_dekripsi"):
         # --- Validasi input dasar ---
         if not ciphertext_input.strip():
             st.error("⚠️ Ciphertext tidak boleh kosong.")
