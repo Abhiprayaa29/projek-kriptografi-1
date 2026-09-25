@@ -434,22 +434,22 @@ with tab_enkripsi:
     if st.button("🔒 Enkripsi Sekarang", type="primary", key="btn_enkripsi"):
         # --- Validasi input dasar ---
         if not plaintext_input:
-            st.error("⚠️ Plaintext tidak boleh kosong.")
+            st.error(" Plaintext tidak boleh kosong.")
         elif not vigenere_key.strip():
-            st.error("⚠️ Kunci Vigenère tidak boleh kosong.")
+            st.error(" Kunci Vigenère tidak boleh kosong.")
         elif not xor_key:
-            st.error("⚠️ Kunci XOR tidak boleh kosong.")
+            st.error(" Kunci XOR tidak boleh kosong.")
         elif not rsa_valid:
-            st.error("⚠️ Kunci RSA belum valid. Perbaiki pengaturan kunci RSA di atas terlebih dahulu.")
+            st.error(" Kunci RSA belum valid. Perbaiki pengaturan kunci RSA di atas terlebih dahulu.")
         else:
             try:
                 hasil = super_encrypt(
                     plaintext_input, int(caesar_shift), vigenere_key, xor_key, rsa_e, rsa_n
                 )
 
-                st.success("✅ Enkripsi berhasil dilakukan!")
+                st.success(" Enkripsi berhasil dilakukan!")
 
-                st.markdown("### 📦 Ciphertext Final (deretan angka)")
+                st.markdown("###  Ciphertext Final (deretan angka)")
                 st.code(hasil["ciphertext_string"], language="text")
 
                 st.markdown("### 🔍 Visualisasi Proses Bertahap")
