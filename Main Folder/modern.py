@@ -2,33 +2,24 @@
 =======================================================================
  APLIKASI ENKRIPSI & DEKRIPSI
  Algoritma  : XOR Cipher & RSA
- Fitur      : Menampilkan langkah-langkah proses algoritma
 =======================================================================
 """
 
-import random
 import math
-import textwrap
 
 
 # =======================================================================
 # UTILITAS TAMPILAN
 # =======================================================================
 
-def garis(karakter="=", panjang=70):
-    print(karakter * panjang)
+def garis():
+    print("-" * 65)
 
 
 def judul(teks):
-    garis()
-    print(teks.center(70))
-    garis()
-
-
-def sub_judul(teks):
-    print("\n" + "-" * 70)
-    print(f" {teks}")
-    print("-" * 70)
+    print("=" * 65)
+    print(teks.center(65))
+    print("=" * 65)
 
 
 def jeda():
@@ -39,53 +30,93 @@ def jeda():
 # BAGIAN 1 : XOR CIPHER
 # =======================================================================
 
-def xor_proses(teks, key, mode):
+def xor_process(data, key, mode):
     """
-    Melakukan XOR antara setiap karakter teks dengan key (berulang),
-    sekaligus menampilkan proses tiap karakter.
+    data : list of int (nilai byte 0-255)
+    key  : string kunci
+    Menampilkan tabel proses XOR dan mengembalikan list hasil (int).
     """
+    key_bytes = [ord(k) for k in key]
     hasil = []
-    key_len = len(key)
 
-    sub_judul(f"PROSES {mode.upper()} - XOR CIPHER")
-    print(f"{'No':<4}{'Karakter':<10}{'ASCII':<8}{'Key':<8}"
-          f"{'ASCII Key':<12}{'XOR (dec)':<12}{'Hasil':<10}")
-    garis("-")
+    print(f"\nProses {mode} (setiap byte di-XOR dengan key secara berulang):")
+    print(f"{'No':<4}{'Input (dec)':<14}{'Key (dec)':<12}{'XOR (dec)':<12}")
+    garis()
 
-    for i, ch in enumerate(teks):
-        k = key[i % key_len]
-        nilai_ascii = ord(ch)
-        nilai_key = ord(k)
-        nilai_xor = nilai_ascii ^ nilai_key
-        hasil_char = chr(nilai_xor)
-        hasil.append(hasil_char)
+    for i, b in enumerate(data):
+        k = key_bytes[i % len(key_bytes)]
+        x = b ^ k
+        hasil.append(x)
+        print(f"{i+1:<4}{b:<14}{k:<12}{x:<12}")
 
-        # representasi aman untuk karakter non-printable saat ditampilkan
-        tampil_char = ch if ch.isprintable() else repr(ch)
-        tampil_hasil = hasil_char if hasil_char.isprintable() else repr(hasil_char)
-
-        print(f"{i+1:<4}{tampil_char:<10}{nilai_ascii:<8}{k:<8}"
-              f"{nilai_key:<12}{nilai_xor:<12}{tampil_hasil:<10}")
-
-    return "".join(hasil)
-
-
-def xor_encrypt(plaintext, key):
-    hasil = xor_proses(plaintext, key, "ENKRIPSI")
-    # tampilkan hasil enkripsi dalam bentuk hex agar aman dibaca / disalin
-    hasil_hex = hasil.encode("utf-8", errors="surrogatepass").hex()
-    return hasil, hasil_hex
-
-
-def xor_decrypt(ciphertext_hex, key):
-    try:
-        bytes_data = bytes.fromhex(ciphertext_hex)
-        ciphertext = bytes_data.decode("utf-8", errors="surrogatepass")
-    except ValueError:
-        print("\n[ERROR] Format ciphertext (hex) tidak valid!")
-        return None
-    hasil = xor_proses(ciphertext, key, "DEKRIPSI")
     return hasil
+
+
+def tampilkan_hex_biner(nilai_list):
+    data_bytes = bytes(nilai_list)
+    hasil_hex = data_bytes.hex()
+    hasil_biner = " ".join(format(b, "08b") for b in data_bytes)
+    return hasil_hex, hasil_biner
+
+
+def menu_xor_encrypt():
+    judul("XOR CIPHER - ENKRIPSI")
+    plaintext = input("Masukkan plaintext: ")
+    key = input("Masukkan key: ")
+    if not key:
+        print("[ERROR] Key tidak boleh kosong!")
+        return
+
+    data = [ord(c) for c in plaintext]
+    hasil = xor_process(data, key, "ENKRIPSI")
+    hasil_hex, hasil_biner = tampilkan_hex_biner(hasil)
+
+    print("\nHASIL AKHIR")
+    garis()
+    print(f"Plaintext         : {plaintext}")
+    print(f"Key               : {key}")
+    print(f"Ciphertext (hex)  : {hasil_hex}")
+    print(f"Ciphertext (biner): {hasil_biner}")
+
+
+def menu_xor_decrypt():
+    judul("XOR CIPHER - DEKRIPSI")
+    print("Format ciphertext input:")
+    print("1. Hexadecimal")
+    print("2. Biner")
+    format_pilih = input("Pilih format (1/2): ").strip()
+
+    ciphertext = input("Masukkan ciphertext: ").strip().replace(" ", "")
+    key = input("Masukkan key: ")
+    if not key:
+        print("[ERROR] Key tidak boleh kosong!")
+        return
+
+    try:
+        if format_pilih == "1":
+            data_bytes = bytes.fromhex(ciphertext)
+        elif format_pilih == "2":
+            if len(ciphertext) % 8 != 0:
+                print("[ERROR] Panjang biner harus kelipatan 8!")
+                return
+            data_bytes = bytes(
+                int(ciphertext[i:i + 8], 2) for i in range(0, len(ciphertext), 8)
+            )
+        else:
+            print("[ERROR] Format pilihan tidak valid!")
+            return
+    except ValueError:
+        print("[ERROR] Format ciphertext tidak valid!")
+        return
+
+    hasil = xor_process(list(data_bytes), key, "DEKRIPSI")
+    plaintext = "".join(chr(x) for x in hasil)
+
+    print("\nHASIL AKHIR")
+    garis()
+    print(f"Ciphertext : {ciphertext}")
+    print(f"Key        : {key}")
+    print(f"Plaintext  : {plaintext}")
 
 
 def menu_xor():
@@ -97,39 +128,11 @@ def menu_xor():
         pilihan = input("\nPilih menu (1-3): ").strip()
 
         if pilihan == "1":
-            sub_judul("INPUT ENKRIPSI XOR")
-            plaintext = input("Masukkan plaintext (pesan asli): ")
-            key = input("Masukkan key (kata kunci): ")
-            if not key:
-                print("[ERROR] Key tidak boleh kosong!")
-                jeda()
-                continue
-
-            hasil, hasil_hex = xor_encrypt(plaintext, key)
-
-            sub_judul("HASIL AKHIR")
-            print(f"Plaintext   : {plaintext}")
-            print(f"Key         : {key}")
-            print(f"Ciphertext (hex) : {hasil_hex}")
+            menu_xor_encrypt()
             jeda()
-
         elif pilihan == "2":
-            sub_judul("INPUT DEKRIPSI XOR")
-            ciphertext_hex = input("Masukkan ciphertext (dalam format hex): ")
-            key = input("Masukkan key (kata kunci): ")
-            if not key:
-                print("[ERROR] Key tidak boleh kosong!")
-                jeda()
-                continue
-
-            hasil = xor_decrypt(ciphertext_hex, key)
-            if hasil is not None:
-                sub_judul("HASIL AKHIR")
-                print(f"Ciphertext (hex) : {ciphertext_hex}")
-                print(f"Key              : {key}")
-                print(f"Plaintext        : {hasil}")
+            menu_xor_decrypt()
             jeda()
-
         elif pilihan == "3":
             break
         else:
@@ -154,64 +157,78 @@ def is_prima(n):
     return True
 
 
-def buat_bilangan_prima(bawah=100, atas=300):
-    """Menghasilkan bilangan prima acak dalam rentang tertentu (untuk demo)."""
-    kandidat = [n for n in range(bawah, atas) if is_prima(n)]
-    return random.choice(kandidat)
-
-
 def gcd(a, b):
     while b:
         a, b = b, a % b
     return a
 
 
-def modinv(e, phi):
-    """Mencari invers modular e terhadap phi menggunakan Extended Euclidean."""
-    g, x, _ = extended_gcd(e, phi)
-    if g != 1:
-        raise Exception("Invers modular tidak ditemukan")
-    return x % phi
-
-
 def extended_gcd(a, b):
     if a == 0:
         return b, 0, 1
     g, x1, y1 = extended_gcd(b % a, a)
-    x = y1 - (b // a) * x1
-    y = x1
-    return g, x, y
+    return g, y1 - (b // a) * x1, x1
+
+
+def modinv(e, phi):
+    g, x, _ = extended_gcd(e, phi)
+    if g != 1:
+        raise ValueError("Invers modular tidak ditemukan")
+    return x % phi
+
+
+def input_prima(label):
+    """Minta input bilangan prima dari user, ulangi jika tidak valid."""
+    while True:
+        teks = input(f"Masukkan {label} (bilangan prima): ").strip()
+        if not teks.isdigit():
+            print("[ERROR] Harus berupa angka!")
+            continue
+        n = int(teks)
+        if not is_prima(n):
+            print(f"[ERROR] {n} bukan bilangan prima! Silakan input ulang.")
+            continue
+        return n
+
+
+def input_e(phi):
+    """Minta input e dari user, harus 1 < e < phi dan gcd(e, phi) = 1."""
+    while True:
+        teks = input(f"Masukkan e (1 < e < {phi}, gcd(e, phi) = 1): ").strip()
+        if not teks.isdigit():
+            print("[ERROR] Harus berupa angka!")
+            continue
+        e = int(teks)
+        if not (1 < e < phi):
+            print(f"[ERROR] e harus di antara 1 dan {phi}!")
+            continue
+        if gcd(e, phi) != 1:
+            print(f"[ERROR] e = {e} tidak coprime dengan phi(n) = {phi}. Pilih e lain!")
+            continue
+        return e
 
 
 def rsa_buat_kunci():
-    sub_judul("PEMBANGKITAN KUNCI RSA")
+    judul("PEMBANGKITAN KUNCI RSA")
 
-    p = buat_bilangan_prima()
-    q = buat_bilangan_prima()
-    while q == p:
-        q = buat_bilangan_prima()
+    p = input_prima("p")
+    while True:
+        q = input_prima("q")
+        if q == p:
+            print("[ERROR] q tidak boleh sama dengan p!")
+            continue
+        break
 
     n = p * q
     phi = (p - 1) * (q - 1)
 
-    # pilih e yang coprime dengan phi
-    e = 65537 if 65537 < phi and gcd(65537, phi) == 1 else 3
-    while gcd(e, phi) != 1:
-        e += 2
+    print(f"\nn         = p * q             = {p} * {q} = {n}")
+    print(f"phi(n)    = (p-1) * (q-1)     = {p-1} * {q-1} = {phi}")
 
+    e = input_e(phi)
     d = modinv(e, phi)
 
-    print(f"1. Pilih dua bilangan prima acak:")
-    print(f"   p = {p}")
-    print(f"   q = {q}")
-    print(f"\n2. Hitung n = p * q")
-    print(f"   n = {p} * {q} = {n}")
-    print(f"\n3. Hitung phi(n) = (p-1) * (q-1)")
-    print(f"   phi(n) = ({p}-1) * ({q}-1) = {phi}")
-    print(f"\n4. Pilih e sehingga gcd(e, phi(n)) = 1")
-    print(f"   e = {e}")
-    print(f"\n5. Hitung d = e^(-1) mod phi(n)  (invers modular)")
-    print(f"   d = {d}")
+    print(f"\nd (e^-1 mod phi(n)) = {d}")
     print(f"\n>> Kunci Publik  (e, n) = ({e}, {n})")
     print(f">> Kunci Privat  (d, n) = ({d}, {n})")
 
@@ -219,40 +236,35 @@ def rsa_buat_kunci():
 
 
 def rsa_encrypt(teks, e, n):
-    sub_judul("PROSES ENKRIPSI RSA")
-    print("Rumus: C = M^e mod n\n")
-    print(f"{'No':<4}{'Karakter':<10}{'M (ASCII)':<12}{'Perhitungan C = M^e mod n':<35}{'C':<10}")
-    garis("-")
+    print(f"\nRumus: C = M^e mod n")
+    print(f"{'No':<4}{'Karakter':<10}{'M':<8}{'Perhitungan':<25}{'C':<10}")
+    garis()
 
     hasil = []
     for i, ch in enumerate(teks):
         m = ord(ch)
+        if m >= n:
+            print(f"[ERROR] Karakter '{ch}' (ASCII {m}) >= n ({n}). "
+                  f"Pilih p, q yang lebih besar!")
+            return None
         c = pow(m, e, n)
         hasil.append(c)
-        perhitungan = f"{m}^{e} mod {n}"
-        tampil_char = ch if ch.isprintable() else repr(ch)
-        print(f"{i+1:<4}{tampil_char:<10}{m:<12}{perhitungan:<35}{c:<10}")
+        print(f"{i+1:<4}{ch:<10}{m:<8}{f'{m}^{e} mod {n}':<25}{c:<10}")
 
     return hasil
 
 
 def rsa_decrypt(daftar_cipher, d, n):
-    sub_judul("PROSES DEKRIPSI RSA")
-    print("Rumus: M = C^d mod n\n")
-    print(f"{'No':<4}{'C':<10}{'Perhitungan M = C^d mod n':<30}{'M (ASCII)':<12}{'Karakter':<10}")
-    garis("-")
+    print(f"\nRumus: M = C^d mod n")
+    print(f"{'No':<4}{'C':<10}{'Perhitungan':<22}{'M':<8}{'Karakter':<10}")
+    garis()
 
     hasil = []
     for i, c in enumerate(daftar_cipher):
         m = pow(c, d, n)
-        try:
-            karakter = chr(m)
-        except ValueError:
-            karakter = "?"
+        karakter = chr(m)
         hasil.append(karakter)
-        perhitungan = f"{c}^{d} mod {n}"
-        tampil_hasil = karakter if karakter.isprintable() else repr(karakter)
-        print(f"{i+1:<4}{c:<10}{perhitungan:<30}{m:<12}{tampil_hasil:<10}")
+        print(f"{i+1:<4}{c:<10}{f'{c}^{d} mod {n}':<22}{m:<8}{karakter:<10}")
 
     return "".join(hasil)
 
@@ -261,7 +273,7 @@ def menu_rsa():
     kunci = None
     while True:
         judul("MENU RSA")
-        print("1. Generate Kunci (Public & Private)")
+        print("1. Generate Kunci (input p, q, e sendiri)")
         print("2. Enkripsi")
         print("3. Dekripsi")
         print("4. Kembali ke Menu Utama")
@@ -273,37 +285,34 @@ def menu_rsa():
 
         elif pilihan == "2":
             if kunci is None:
-                print("\n[INFO] Kunci belum digenerate, sistem akan generate otomatis.")
-                kunci = rsa_buat_kunci()
+                print("[ERROR] Belum ada kunci. Silakan generate kunci dahulu (menu 1).")
                 jeda()
-
-            plaintext = input("\nMasukkan plaintext (pesan asli): ")
+                continue
+            plaintext = input("\nMasukkan plaintext: ")
             hasil = rsa_encrypt(plaintext, kunci["e"], kunci["n"])
-
-            sub_judul("HASIL AKHIR")
-            print(f"Plaintext  : {plaintext}")
-            print(f"Kunci Publik (e, n) : ({kunci['e']}, {kunci['n']})")
-            print(f"Ciphertext (list angka) : {hasil}")
+            if hasil is not None:
+                print("\nHASIL AKHIR")
+                garis()
+                print(f"Plaintext  : {plaintext}")
+                print(f"Kunci Publik (e, n) : ({kunci['e']}, {kunci['n']})")
+                print(f"Ciphertext : {hasil}")
             jeda()
 
         elif pilihan == "3":
             if kunci is None:
-                print("\n[ERROR] Belum ada kunci. Silakan generate kunci terlebih dahulu (menu 1).")
+                print("[ERROR] Belum ada kunci. Silakan generate kunci dahulu (menu 1).")
                 jeda()
                 continue
-
-            print("\nMasukkan ciphertext (angka dipisah spasi atau koma),")
-            teks_cipher = input("contoh: 123 456 789 -> ")
+            teks_cipher = input("\nMasukkan ciphertext (angka dipisah spasi): ")
             try:
                 daftar_cipher = [int(x) for x in teks_cipher.replace(",", " ").split()]
             except ValueError:
                 print("[ERROR] Format ciphertext tidak valid!")
                 jeda()
                 continue
-
             hasil = rsa_decrypt(daftar_cipher, kunci["d"], kunci["n"])
-
-            sub_judul("HASIL AKHIR")
+            print("\nHASIL AKHIR")
+            garis()
             print(f"Ciphertext : {daftar_cipher}")
             print(f"Kunci Privat (d, n) : ({kunci['d']}, {kunci['n']})")
             print(f"Plaintext  : {hasil}")
@@ -320,21 +329,8 @@ def menu_rsa():
 # MENU UTAMA
 # =======================================================================
 
-def tampilkan_intro():
-    judul("APLIKASI ENKRIPSI & DEKRIPSI")
-    deskripsi = (
-        "Aplikasi ini mendukung dua algoritma kriptografi modern, "
-        "yaitu XOR Cipher (kriptografi simetris) dan RSA "
-        "(kriptografi asimetris). Setiap proses enkripsi maupun "
-        "dekripsi akan ditampilkan langkah demi langkah agar mudah dipahami."
-    )
-    for baris in textwrap.wrap(deskripsi, width=68):
-        print(baris)
-    garis()
-
-
 def menu_utama():
-    tampilkan_intro()
+    judul("APLIKASI ENKRIPSI & DEKRIPSI (XOR CIPHER & RSA)")
     while True:
         print("\nMENU UTAMA")
         print("1. XOR Cipher")
@@ -347,7 +343,7 @@ def menu_utama():
         elif pilihan == "2":
             menu_rsa()
         elif pilihan == "3":
-            print("\nTerima kasih telah menggunakan aplikasi ini. Sampai jumpa!")
+            print("\nTerima kasih telah menggunakan aplikasi ini.")
             break
         else:
             print("[ERROR] Pilihan tidak valid!")
