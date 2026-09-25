@@ -499,13 +499,13 @@ with tab_dekripsi:
     if st.button(" Dekripsi Sekarang", type="primary", key="btn_dekripsi"):
         # --- Validasi input dasar ---
         if not ciphertext_input.strip():
-            st.error("⚠️ Ciphertext tidak boleh kosong.")
+            st.error(" Ciphertext tidak boleh kosong.")
         elif not vigenere_key.strip():
-            st.error("⚠️ Kunci Vigenère tidak boleh kosong.")
+            st.error(" Kunci Vigenère tidak boleh kosong.")
         elif not xor_key:
-            st.error("⚠️ Kunci XOR tidak boleh kosong.")
+            st.error(" Kunci XOR tidak boleh kosong.")
         elif not rsa_valid:
-            st.error("⚠️ Kunci RSA belum valid. Perbaiki pengaturan kunci RSA di atas terlebih dahulu.")
+            st.error(" Kunci RSA belum valid. Perbaiki pengaturan kunci RSA di atas terlebih dahulu.")
         else:
             try:
                 hasil = super_decrypt(
