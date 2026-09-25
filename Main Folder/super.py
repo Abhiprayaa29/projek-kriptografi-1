@@ -512,12 +512,12 @@ with tab_dekripsi:
                     ciphertext_input, int(caesar_shift), vigenere_key, xor_key, rsa_d, rsa_n
                 )
 
-                st.success("✅ Dekripsi berhasil dilakukan!")
+                st.success(" Dekripsi berhasil dilakukan!")
 
-                st.markdown("### 📜 Plaintext Hasil Dekripsi")
+                st.markdown("###  Plaintext Hasil Dekripsi")
                 st.code(hasil["plaintext_akhir"], language="text")
 
-                st.markdown("### 🔍 Visualisasi Proses Bertahap")
+                st.markdown("###  Visualisasi Proses Bertahap")
 
                 with st.expander("Tahap 1 — Dekripsi RSA", expanded=False):
                     st.write(f"**Kunci privat:** d = {rsa_d}, n = {rsa_n}")
@@ -545,9 +545,9 @@ with tab_dekripsi:
                     st.code(hasil["plaintext_akhir"], language="text")
 
             except ValueError as e:
-                st.error(f"⚠️ Terjadi kesalahan: {e}")
+                st.error(f" Terjadi kesalahan: {e}")
             except Exception as e:
-                st.error(f"⚠️ Terjadi kesalahan tak terduga: {e}")
+                st.error(f" Terjadi kesalahan tak terduga: {e}")
 
 st.divider()
 st.caption("Dibuat dengan Streamlit — Modul Super Enkripsi (Caesar → Vigenère → XOR → RSA)")
