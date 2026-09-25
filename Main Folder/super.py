@@ -420,7 +420,7 @@ st.divider()
 # ----------------------------------------------------------------------------------
 # MODE OPERASI: ENKRIPSI / DEKRIPSI
 # ----------------------------------------------------------------------------------
-tab_enkripsi, tab_dekripsi = st.tabs(["🔒 Mode Enkripsi", "🔓 Mode Dekripsi"])
+tab_enkripsi, tab_dekripsi = st.tabs([" Mode Enkripsi", " Mode Dekripsi"])
 
 # ============================== MODE ENKRIPSI ======================================
 with tab_enkripsi:
