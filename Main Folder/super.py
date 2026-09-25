@@ -324,6 +324,3 @@ with tab_dec:
                     st.code(r["plaintext"])
             except ValueError as err:
                 st.error(f"Kesalahan: {err}")
-
-st.divider()
-st.caption("Modul Super Enkripsi - Caesar -> Vigenere -> XOR -> RSA")
