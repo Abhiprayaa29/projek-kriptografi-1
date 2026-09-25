@@ -367,7 +367,7 @@ with st.expander("🔑 Kunci Caesar & Vigenère & XOR", expanded=True):
             help="Bisa berupa teks bebas, akan diubah ke byte UTF-8."
         )
 
-with st.expander("🔐 Kunci RSA (n, e, d)", expanded=True):
+with st.expander(" Kunci RSA (n, e, d)", expanded=True):
     opsi_rsa = st.radio(
         "Pilih metode penentuan kunci RSA:",
         ["Opsi A: Preset Otomatis", "Opsi B: Manual (p, q, e)"],
@@ -407,7 +407,7 @@ with st.expander("🔐 Kunci RSA (n, e, d)", expanded=True):
 
         if errors:
             for err in errors:
-                st.error(f"⚠️ {err}")
+                st.error(f" {err}")
         else:
             rsa_valid = True
             st.success(
