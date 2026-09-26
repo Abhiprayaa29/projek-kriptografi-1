@@ -11,14 +11,7 @@ import streamlit as st
 
 
 def vigenere(text: str, key: str, decrypt: bool = False) -> str:
-    """
-    Enkripsi/dekripsi teks dengan Vigenere Cipher.
 
-    - Setiap huruf pada teks digeser sesuai huruf kunci yang berulang.
-    - Karakter non-huruf (spasi, angka, tanda baca) tidak diubah,
-      dan tidak menggeser posisi kunci.
-    - decrypt=True -> arah pergeseran dibalik (dekripsi).
-    """
     key = "".join(c for c in key if c.isalpha())
     if not key:
         raise ValueError("Kunci Vigenere harus berisi minimal satu huruf.")
