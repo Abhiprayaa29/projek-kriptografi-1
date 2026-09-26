@@ -178,9 +178,8 @@ if st.session_state.rsa_key:
 
 st.divider()
 
-# -----------------------------------------------------------------
-# BAGIAN 2 : ENKRIPSI
-# -----------------------------------------------------------------
+#enkripsi
+
 st.header("Enkripsi")
 
 if not st.session_state.rsa_key:
@@ -203,9 +202,7 @@ else:
 
 st.divider()
 
-# -----------------------------------------------------------------
-# BAGIAN 3 : DEKRIPSI
-# -----------------------------------------------------------------
+#deks
 st.header("3️⃣ Dekripsi")
 
 if not st.session_state.rsa_key:
