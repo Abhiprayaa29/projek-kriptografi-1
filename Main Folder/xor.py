@@ -9,9 +9,7 @@ import streamlit as st
 import pandas as pd
 
 
-# =======================================================================
-# LOGIKA XOR CIPHER (alurnya sama seperti versi CLI: xor_process dkk.)
-# =======================================================================
+#LOGIKA XOR CHIPER
 
 def parse_input_ke_bytes(teks, format_input):
     """
