@@ -1,13 +1,3 @@
-"""
-=======================================================================
- CAESAR CIPHER - Streamlit App
- Aplikasi web untuk enkripsi, dekripsi, dan brute force Caesar Cipher
- Kunci (pergeseran) diinput sendiri oleh user
-
- Jalankan: streamlit run caesar_app.py
-=======================================================================
-"""
-
 import pandas as pd
 import streamlit as st
 
