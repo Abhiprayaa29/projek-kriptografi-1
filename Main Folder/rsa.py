@@ -5,7 +5,7 @@ import math
 import pandas as pd
 import streamlit as st
 
-#LOHIKA RSA 
+#LOGIKA RSA 
 
 def is_prima(n):
     if n < 2:
