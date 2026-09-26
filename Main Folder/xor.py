@@ -71,12 +71,14 @@ def parse_key(key_str):
         return [ord(c) for c in key_str], list(key_str), "Teks (per karakter)"
 
 
-def xor_process(data, key_bytes, key_display, mode):
+def xor_process(data, key_bytes, key_display, mode, tampilkan_ascii_key=True):
     """
-    data         : list of int (nilai byte 0-255) — data yang diproses
-    key_bytes    : list of int — nilai byte key (dari parse_key)
-    key_display  : list of str — representasi key untuk ditampilkan di tabel
-    mode         : "ENKRIPSI" atau "DEKRIPSI" (hanya label, prosesnya identik)
+    data                : list of int (nilai byte 0-255) — data yang diproses
+    key_bytes           : list of int — nilai byte key (dari parse_key)
+    key_display         : list of str — representasi key untuk ditampilkan di tabel
+    mode                : "ENKRIPSI" atau "DEKRIPSI" (hanya label, prosesnya identik)
+    tampilkan_ascii_key : False kalau key berupa angka (Key == ASCII Key, jadi redundan
+                          dan kolom "ASCII Key" disembunyikan, langsung ke Biner Key)
 
     Return: (hasil, tabel_proses)
       hasil        : list of int hasil XOR
@@ -92,19 +94,21 @@ def xor_process(data, key_bytes, key_display, mode):
         x = b ^ k
 
         hasil.append(x)
-        tabel_proses.append({
+        baris = {
             "No": i + 1,
             "Huruf": byte_ke_karakter_aman(b),
             "ASCII": b,
             "Biner": format(b, "08b"),
             "Key": k_label,
-            "ASCII Key": k,
-            "Biner Key": format(k, "08b"),
-            "XOR (biner)": format(x, "08b"),
-            "Hasil (dec)": x,
-            "Hasil (hex)": format(x, "02x"),
-            "Hasil (karakter)": byte_ke_karakter_aman(x),
-        })
+        }
+        if tampilkan_ascii_key:
+            baris["ASCII Key"] = k
+        baris["Biner Key"] = format(k, "08b")
+        baris["XOR (biner)"] = format(x, "08b")
+        baris["Hasil (dec)"] = x
+        baris["Hasil (hex)"] = format(x, "02x")
+        baris["Hasil (karakter)"] = byte_ke_karakter_aman(x)
+        tabel_proses.append(baris)
 
     return hasil, tabel_proses
 
@@ -173,7 +177,10 @@ if proses:
         except ValueError as e:
             st.error(f"[ERROR] {e}")
         else:
-            hasil, tabel_proses = xor_process(data_bytes, key_bytes, key_display, mode.upper())
+            hasil, tabel_proses = xor_process(
+                data_bytes, key_bytes, key_display, mode.upper(),
+                tampilkan_ascii_key=(jenis_key != "Angka (1 byte, diulang terus)"),
+            )
             teks_hasil, biner_hasil, hex_hasil = hasil_ke_3_format(hasil)
 
             st.subheader(f"📋 Proses {mode} (setiap byte di-XOR dengan key secara berulang)")
