@@ -1,4 +1,5 @@
-#APLIKASI 
+
+#APLIKASI XOR CHIPER
 
 import streamlit as st
 import pandas as pd
