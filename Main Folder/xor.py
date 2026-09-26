@@ -123,7 +123,7 @@ def hasil_ke_3_format(hasil_list):
 
 st.set_page_config(page_title="XOR Cipher", page_icon="🔐", layout="wide")
 
-st.title("🔐 XOR Cipher")
+st.title("XOR Cipher")
 st.caption("Enkripsi & Dekripsi dengan operasi XOR — kunci yang sama dipakai untuk kedua arah (symmetric encryption).")
 
 mode = st.radio("Mode", ["Enkripsi", "Dekripsi"], horizontal=True)
@@ -151,7 +151,7 @@ key = st.text_input(
 if key:
     try:
         _, _, jenis_key = parse_key(key)
-        st.caption(f"🔎 Key terdeteksi sebagai: **{jenis_key}**")
+        st.caption(f"Key terdeteksi sebagai: **{jenis_key}**")
     except ValueError as e:
         st.caption(f"{e}")
 
