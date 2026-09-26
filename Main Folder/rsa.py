@@ -91,7 +91,7 @@ if "rsa_key" not in st.session_state:
 # -----------------------------------------------------------------
 # BAGIAN 1 : PEMBANGKITAN KUNCI (p, q input manual + validasi)
 # -----------------------------------------------------------------
-st.header("1️⃣ Pembangkitan Kunci")
+st.header("Pembangkitan Kunci")
 
 col1, col2 = st.columns(2)
 with col1:
