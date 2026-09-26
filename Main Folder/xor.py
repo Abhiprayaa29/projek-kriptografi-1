@@ -195,7 +195,7 @@ if proses:
                 "misalnya `\\x03`. Gunakan bentuk **Biner** atau **Heksadesimal** untuk menyalin hasil dengan aman."
             )
 
-with st.expander("ℹ️ Cara Kerja XOR Cipher"):
+with st.expander("Cara Kerja XOR Cipher"):
     st.markdown(
         """
         - **Enkripsi**: `Plaintext ⊕ Key = Ciphertext`
