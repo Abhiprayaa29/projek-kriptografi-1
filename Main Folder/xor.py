@@ -192,7 +192,7 @@ if proses:
                 st.markdown("**🔤 Huruf (Teks)**")
                 st.code(teks_hasil if teks_hasil else "(kosong)", language=None)
             with c2:
-                st.markdown("**0️⃣1️⃣ Biner**")
+                st.markdown("**0Biner**")
                 st.code(biner_hasil, language=None)
             with c3:
                 st.markdown("**# Heksadesimal**")
