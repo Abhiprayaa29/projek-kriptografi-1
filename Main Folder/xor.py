@@ -186,13 +186,13 @@ if proses:
             st.subheader(f"📋 Proses {mode} (setiap byte di-XOR dengan key secara berulang)")
             st.dataframe(pd.DataFrame(tabel_proses), use_container_width=True, hide_index=True)
 
-            st.subheader("✅ Hasil Akhir — 3 Bentuk Output")
+            st.subheader("Hasil Akhir — 3 Bentuk Output")
             c1, c2, c3 = st.columns(3)
             with c1:
-                st.markdown("**🔤 Huruf (Teks)**")
+                st.markdown("**Huruf (Teks)**")
                 st.code(teks_hasil if teks_hasil else "(kosong)", language=None)
             with c2:
-                st.markdown("**0Biner**")
+                st.markdown("**Biner**")
                 st.code(biner_hasil, language=None)
             with c3:
                 st.markdown("**# Heksadesimal**")
