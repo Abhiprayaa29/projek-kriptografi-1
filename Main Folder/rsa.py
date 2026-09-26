@@ -88,7 +88,8 @@ st.caption("Enkripsi & Dekripsi asimetris — kunci publik untuk mengenkripsi, k
 if "rsa_key" not in st.session_state:
     st.session_state.rsa_key = None
 
-#
+#pembangkitan kunci (input p dan q manual)
+
 st.header("Pembangkitan Kunci")
 
 col1, col2 = st.columns(2)
