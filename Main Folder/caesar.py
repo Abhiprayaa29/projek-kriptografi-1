@@ -41,11 +41,6 @@ def geser_karakter(ch, kunci):
 
 
 def caesar_process(teks, kunci, mode):
-    """
-    mode: "ENKRIPSI" -> geser maju sebanyak kunci
-          "DEKRIPSI" -> geser mundur sebanyak kunci (pakai kunci negatif)
-    Menampilkan tabel proses dan mengembalikan hasil teks.
-    """
     pergeseran = kunci if mode == "ENKRIPSI" else -kunci
 
     print(f"\nProses {mode} (geser {'maju' if mode == 'ENKRIPSI' else 'mundur'} {kunci} huruf):")
