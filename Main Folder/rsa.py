@@ -1,9 +1,4 @@
-"""
-=======================================================================
- APLIKASI ENKRIPSI & DEKRIPSI - RSA CIPHER (Streamlit)
- Jalankan dengan: streamlit run rsa_streamlit.py
-=======================================================================
-"""
+#APLIKASI RSA CHIPER
 
 import math
 
