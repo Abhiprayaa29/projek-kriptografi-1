@@ -9,7 +9,8 @@ import pandas as pd
 
 def parse_input_ke_bytes(teks, format_input):
     """
-    Mengubah input user menjadi list byte (int 0-255), sesuai format yang dipilih.
+    Mengubah input user menjadi list byte (int 0-255), 
+    sesuai format yang dipilih.
     format_input : "Teks" | "Biner" | "Heksadesimal"
     """
     teks = teks.strip()
