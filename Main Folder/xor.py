@@ -1,6 +1,6 @@
 """
 =======================================================================
- APLIKASI ENKRIPSI & DEKRIPSI - XOR CIPHER (Streamlit)
+ #APLIKASI ENKRIPSI & DEKRIPSI - XOR CIPHER (Streamlit)
  Jalankan dengan: streamlit run xor_streamlit.py
 =======================================================================
 """
