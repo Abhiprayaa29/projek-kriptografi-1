@@ -1,14 +1,11 @@
-#APLIKASI RSA CHIPER
+#APLIKASI RSA
 
 import math
 
 import pandas as pd
 import streamlit as st
 
-
-# =======================================================================
-# LOGIKA RSA (identik dengan versi CLI: is_prima, gcd, extended_gcd, dst.)
-# =======================================================================
+#LOHIKA RSA 
 
 def is_prima(n):
     if n < 2:
