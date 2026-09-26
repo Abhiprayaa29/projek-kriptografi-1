@@ -238,7 +238,7 @@ with st.expander("Cara Kerja RSA"):
         7. Enkripsi: `C = M^e mod n`
         8. Dekripsi: `M = C^d mod n`
 
-        ⚠️ Catatan: pastikan nilai ASCII karakter plaintext **selalu lebih kecil dari n**,
+        Catatan: pastikan nilai ASCII karakter plaintext **selalu lebih kecil dari n**,
         kalau tidak enkripsi akan gagal (pilih p, q yang lebih besar).
         """
     )
