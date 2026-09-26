@@ -78,11 +78,11 @@ def rsa_decrypt(daftar_cipher, d, n):
         })
     return "".join(hasil), tabel_proses
 
-#tampilan 
+#tampilan streamlit
 
-st.set_page_config(page_title="RSA Cipher", page_icon="🔑", layout="wide")
+st.set_page_config(page_title="RSA Cipher", layout="wide")
 
-st.title("🔑 RSA Cipher")
+st.title("RSA Cipher")
 st.caption("Enkripsi & Dekripsi asimetris — kunci publik untuk mengenkripsi, kunci privat untuk mendekripsi.")
 
 if "rsa_key" not in st.session_state:
