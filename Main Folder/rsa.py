@@ -159,14 +159,14 @@ if p_valid and q_valid:
             else:
                 e_valid = True
 
-    if e_valid and st.button("🔧 Buat Kunci", type="primary"):
+    if e_valid and st.button("Buat Kunci", type="primary"):
         d = modinv(e, phi)
         st.session_state.rsa_key = {"p": p, "q": q, "n": n, "phi": phi, "e": e, "d": d}
         st.rerun()
 
 if st.session_state.rsa_key:
     kunci = st.session_state.rsa_key
-    st.markdown("### ✅ Kunci Berhasil Dibuat")
+    st.markdown("Kunci Berhasil Dibuat")
     c1, c2 = st.columns(2)
     with c1:
         st.info(f"**Public Key**  (e, n) = ({kunci['e']}, {kunci['n']})")
