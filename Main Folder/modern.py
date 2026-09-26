@@ -1,147 +1,18 @@
 """
 =======================================================================
- APLIKASI ENKRIPSI & DEKRIPSI
- Algoritma  : XOR Cipher & RSA
+ APLIKASI ENKRIPSI & DEKRIPSI - RSA CIPHER (Streamlit)
+ Jalankan dengan: streamlit run rsa_streamlit.py
 =======================================================================
 """
 
 import math
 
-
-# =======================================================================
-# UTILITAS TAMPILAN
-# =======================================================================
-
-def garis():
-    print("-" * 65)
-
-
-def judul(teks):
-    print("=" * 65)
-    print(teks.center(65))
-    print("=" * 65)
-
-
-def jeda():
-    input("\nTekan ENTER untuk melanjutkan...")
+import pandas as pd
+import streamlit as st
 
 
 # =======================================================================
-# BAGIAN 1 : XOR CIPHER
-# =======================================================================
-
-def xor_process(data, key, mode):
-    """
-    data : list of int (nilai byte 0-255)
-    key  : string kunci
-    Menampilkan tabel proses XOR dan mengembalikan list hasil (int).
-    """
-    key_bytes = [ord(k) for k in key]
-    hasil = []
-
-    print(f"\nProses {mode} (setiap byte di-XOR dengan key secara berulang):")
-    print(f"{'No':<4}{'Input (dec)':<14}{'Key (dec)':<12}{'XOR (dec)':<12}")
-    garis()
-
-    for i, b in enumerate(data):
-        k = key_bytes[i % len(key_bytes)]
-        x = b ^ k
-        hasil.append(x)
-        print(f"{i+1:<4}{b:<14}{k:<12}{x:<12}")
-
-    return hasil
-
-
-def tampilkan_hex_biner(nilai_list):
-    data_bytes = bytes(nilai_list)
-    hasil_hex = data_bytes.hex()
-    hasil_biner = " ".join(format(b, "08b") for b in data_bytes)
-    return hasil_hex, hasil_biner
-
-
-def menu_xor_encrypt():
-    judul("XOR CIPHER - ENKRIPSI")
-    plaintext = input("Masukkan plaintext: ")
-    key = input("Masukkan key: ")
-    if not key:
-        print("[ERROR] Key tidak boleh kosong!")
-        return
-
-    data = [ord(c) for c in plaintext]
-    hasil = xor_process(data, key, "ENKRIPSI")
-    hasil_hex, hasil_biner = tampilkan_hex_biner(hasil)
-
-    print("\nHASIL AKHIR")
-    garis()
-    print(f"Plaintext         : {plaintext}")
-    print(f"Key               : {key}")
-    print(f"Ciphertext (hex)  : {hasil_hex}")
-    print(f"Ciphertext (biner): {hasil_biner}")
-
-
-def menu_xor_decrypt():
-    judul("XOR CIPHER - DEKRIPSI")
-    print("Format ciphertext input:")
-    print("1. Hexadecimal")
-    print("2. Biner")
-    format_pilih = input("Pilih format (1/2): ").strip()
-
-    ciphertext = input("Masukkan ciphertext: ").strip().replace(" ", "")
-    key = input("Masukkan key: ")
-    if not key:
-        print("[ERROR] Key tidak boleh kosong!")
-        return
-
-    try:
-        if format_pilih == "1":
-            data_bytes = bytes.fromhex(ciphertext)
-        elif format_pilih == "2":
-            if len(ciphertext) % 8 != 0:
-                print("[ERROR] Panjang biner harus kelipatan 8!")
-                return
-            data_bytes = bytes(
-                int(ciphertext[i:i + 8], 2) for i in range(0, len(ciphertext), 8)
-            )
-        else:
-            print("[ERROR] Format pilihan tidak valid!")
-            return
-    except ValueError:
-        print("[ERROR] Format ciphertext tidak valid!")
-        return
-
-    hasil = xor_process(list(data_bytes), key, "DEKRIPSI")
-    plaintext = "".join(chr(x) for x in hasil)
-
-    print("\nHASIL AKHIR")
-    garis()
-    print(f"Ciphertext : {ciphertext}")
-    print(f"Key        : {key}")
-    print(f"Plaintext  : {plaintext}")
-
-
-def menu_xor():
-    while True:
-        judul("MENU XOR CIPHER")
-        print("1. Enkripsi")
-        print("2. Dekripsi")
-        print("3. Kembali ke Menu Utama")
-        pilihan = input("\nPilih menu (1-3): ").strip()
-
-        if pilihan == "1":
-            menu_xor_encrypt()
-            jeda()
-        elif pilihan == "2":
-            menu_xor_decrypt()
-            jeda()
-        elif pilihan == "3":
-            break
-        else:
-            print("[ERROR] Pilihan tidak valid!")
-            jeda()
-
-
-# =======================================================================
-# BAGIAN 2 : RSA
+# LOGIKA RSA (identik dengan versi CLI: is_prima, gcd, extended_gcd, dst.)
 # =======================================================================
 
 def is_prima(n):
@@ -177,178 +48,210 @@ def modinv(e, phi):
     return x % phi
 
 
-def input_prima(label):
-    """Minta input bilangan prima dari user, ulangi jika tidak valid."""
-    while True:
-        teks = input(f"Masukkan {label} (bilangan prima): ").strip()
-        if not teks.isdigit():
-            print("[ERROR] Harus berupa angka!")
-            continue
-        n = int(teks)
-        if not is_prima(n):
-            print(f"[ERROR] {n} bukan bilangan prima! Silakan input ulang.")
-            continue
-        return n
-
-
-def input_e(phi):
-    """Minta input e dari user, harus 1 < e < phi dan gcd(e, phi) = 1."""
-    while True:
-        teks = input(f"Masukkan e (1 < e < {phi}, gcd(e, phi) = 1): ").strip()
-        if not teks.isdigit():
-            print("[ERROR] Harus berupa angka!")
-            continue
-        e = int(teks)
-        if not (1 < e < phi):
-            print(f"[ERROR] e harus di antara 1 dan {phi}!")
-            continue
-        if gcd(e, phi) != 1:
-            print(f"[ERROR] e = {e} tidak coprime dengan phi(n) = {phi}. Pilih e lain!")
-            continue
-        return e
-
-
-def rsa_buat_kunci():
-    judul("PEMBANGKITAN KUNCI RSA")
-
-    p = input_prima("p")
-    while True:
-        q = input_prima("q")
-        if q == p:
-            print("[ERROR] q tidak boleh sama dengan p!")
-            continue
-        break
-
-    n = p * q
-    phi = (p - 1) * (q - 1)
-
-    print(f"\nn         = p * q             = {p} * {q} = {n}")
-    print(f"phi(n)    = (p-1) * (q-1)     = {p-1} * {q-1} = {phi}")
-
-    e = input_e(phi)
-    d = modinv(e, phi)
-
-    print(f"\nd (e^-1 mod phi(n)) = {d}")
-    print(f"\n>> Kunci Publik  (e, n) = ({e}, {n})")
-    print(f">> Kunci Privat  (d, n) = ({d}, {n})")
-
-    return {"p": p, "q": q, "n": n, "phi": phi, "e": e, "d": d}
-
-
 def rsa_encrypt(teks, e, n):
-    print(f"\nRumus: C = M^e mod n")
-    print(f"{'No':<4}{'Karakter':<10}{'M':<8}{'Perhitungan':<25}{'C':<10}")
-    garis()
-
+    """Return (hasil, tabel_proses, error). error None kalau sukses."""
     hasil = []
+    tabel_proses = []
     for i, ch in enumerate(teks):
         m = ord(ch)
         if m >= n:
-            print(f"[ERROR] Karakter '{ch}' (ASCII {m}) >= n ({n}). "
-                  f"Pilih p, q yang lebih besar!")
-            return None
+            return None, tabel_proses, (
+                f"Karakter '{ch}' (ASCII {m}) >= n ({n}). Pilih p, q yang lebih besar!"
+            )
         c = pow(m, e, n)
         hasil.append(c)
-        print(f"{i+1:<4}{ch:<10}{m:<8}{f'{m}^{e} mod {n}':<25}{c:<10}")
-
-    return hasil
+        tabel_proses.append({
+            "No": i + 1,
+            "Karakter": ch,
+            "M (ASCII)": m,
+            "Perhitungan": f"{m}^{e} mod {n}",
+            "C": c,
+        })
+    return hasil, tabel_proses, None
 
 
 def rsa_decrypt(daftar_cipher, d, n):
-    print(f"\nRumus: M = C^d mod n")
-    print(f"{'No':<4}{'C':<10}{'Perhitungan':<22}{'M':<8}{'Karakter':<10}")
-    garis()
-
     hasil = []
+    tabel_proses = []
     for i, c in enumerate(daftar_cipher):
         m = pow(c, d, n)
         karakter = chr(m)
         hasil.append(karakter)
-        print(f"{i+1:<4}{c:<10}{f'{c}^{d} mod {n}':<22}{m:<8}{karakter:<10}")
+        tabel_proses.append({
+            "No": i + 1,
+            "C": c,
+            "Perhitungan": f"{c}^{d} mod {n}",
+            "M (ASCII)": m,
+            "Karakter": karakter,
+        })
+    return "".join(hasil), tabel_proses
 
-    return "".join(hasil)
 
+# =======================================================================
+# TAMPILAN STREAMLIT
+# =======================================================================
 
-def menu_rsa():
-    kunci = None
-    while True:
-        judul("MENU RSA")
-        print("1. Generate Kunci (input p, q, e sendiri)")
-        print("2. Enkripsi")
-        print("3. Dekripsi")
-        print("4. Kembali ke Menu Utama")
-        pilihan = input("\nPilih menu (1-4): ").strip()
+st.set_page_config(page_title="RSA Cipher", page_icon="🔑", layout="wide")
 
-        if pilihan == "1":
-            kunci = rsa_buat_kunci()
-            jeda()
+st.title("🔑 RSA Cipher")
+st.caption("Enkripsi & Dekripsi asimetris — kunci publik untuk mengenkripsi, kunci privat untuk mendekripsi.")
 
-        elif pilihan == "2":
-            if kunci is None:
-                print("[ERROR] Belum ada kunci. Silakan generate kunci dahulu (menu 1).")
-                jeda()
-                continue
-            plaintext = input("\nMasukkan plaintext: ")
-            hasil = rsa_encrypt(plaintext, kunci["e"], kunci["n"])
-            if hasil is not None:
-                print("\nHASIL AKHIR")
-                garis()
-                print(f"Plaintext  : {plaintext}")
-                print(f"Kunci Publik (e, n) : ({kunci['e']}, {kunci['n']})")
-                print(f"Ciphertext : {hasil}")
-            jeda()
+if "rsa_key" not in st.session_state:
+    st.session_state.rsa_key = None
 
-        elif pilihan == "3":
-            if kunci is None:
-                print("[ERROR] Belum ada kunci. Silakan generate kunci dahulu (menu 1).")
-                jeda()
-                continue
-            teks_cipher = input("\nMasukkan ciphertext (angka dipisah spasi): ")
+# -----------------------------------------------------------------
+# BAGIAN 1 : PEMBANGKITAN KUNCI (p, q input manual + validasi)
+# -----------------------------------------------------------------
+st.header("1️⃣ Pembangkitan Kunci")
+
+col1, col2 = st.columns(2)
+with col1:
+    p_input = st.text_input("Masukkan p (bilangan prima)", key="p_input")
+with col2:
+    q_input = st.text_input("Masukkan q (bilangan prima)", key="q_input")
+
+p_valid = q_valid = False
+p = q = None
+
+if p_input:
+    if not p_input.isdigit():
+        st.error("p harus berupa angka!")
+    else:
+        p = int(p_input)
+        if not is_prima(p):
+            st.error(f"{p} bukan bilangan prima! Silakan masukkan ulang.")
+        else:
+            p_valid = True
+
+if q_input:
+    if not q_input.isdigit():
+        st.error("q harus berupa angka!")
+    else:
+        q = int(q_input)
+        if not is_prima(q):
+            st.error(f"{q} bukan bilangan prima! Silakan masukkan ulang.")
+        elif p_valid and q == p:
+            st.error("q tidak boleh sama dengan p!")
+        else:
+            q_valid = True
+
+n = phi = None
+e_valid = False
+e = None
+
+if p_valid and q_valid:
+    n = p * q
+    phi = (p - 1) * (q - 1)
+    st.success(f"n = p × q = {p} × {q} = **{n}**")
+    st.success(f"φ(n) = (p-1) × (q-1) = {p - 1} × {q - 1} = **{phi}**")
+
+    e_input = st.text_input(
+        f"Masukkan e (syarat: 2 s/d {phi - 1}, gcd(e, φ(n)) = 1)",
+        key="e_input",
+    )
+
+    if e_input:
+        if not e_input.isdigit():
+            st.error("e harus berupa angka!")
+        else:
+            e = int(e_input)
+            if e <= 1:
+                st.error(
+                    "e tidak boleh 1 atau kurang! Jika e=1, C = M^1 mod n = M "
+                    "(tidak terjadi enkripsi). e minimal 2."
+                )
+            elif e >= phi:
+                st.error(f"e harus lebih kecil dari φ(n) = {phi}!")
+            elif gcd(e, phi) != 1:
+                st.error(
+                    f"e = {e} tidak coprime dengan φ(n) = {phi} "
+                    f"(gcd({e}, {phi}) = {gcd(e, phi)}, harus = 1). Pilih e lain!"
+                )
+            else:
+                e_valid = True
+
+    if e_valid and st.button("🔧 Buat Kunci", type="primary"):
+        d = modinv(e, phi)
+        st.session_state.rsa_key = {"p": p, "q": q, "n": n, "phi": phi, "e": e, "d": d}
+        st.rerun()
+
+if st.session_state.rsa_key:
+    kunci = st.session_state.rsa_key
+    st.markdown("### ✅ Kunci Berhasil Dibuat")
+    c1, c2 = st.columns(2)
+    with c1:
+        st.info(f"**Public Key**  (e, n) = ({kunci['e']}, {kunci['n']})")
+    with c2:
+        st.warning(f"**Private Key**  (d, n) = ({kunci['d']}, {kunci['n']})")
+    if st.button("🗑️ Reset Kunci"):
+        st.session_state.rsa_key = None
+        st.rerun()
+
+st.divider()
+
+# -----------------------------------------------------------------
+# BAGIAN 2 : ENKRIPSI
+# -----------------------------------------------------------------
+st.header("2️⃣ Enkripsi")
+
+if not st.session_state.rsa_key:
+    st.info("Buat kunci terlebih dahulu di Bagian 1.")
+else:
+    kunci = st.session_state.rsa_key
+    plaintext = st.text_input("Masukkan plaintext", key="rsa_plaintext")
+    if st.button("Enkripsi", key="btn_enkripsi", type="primary"):
+        if not plaintext:
+            st.error("Plaintext tidak boleh kosong!")
+        else:
+            hasil, tabel_proses, error = rsa_encrypt(plaintext, kunci["e"], kunci["n"])
+            if tabel_proses:
+                st.dataframe(pd.DataFrame(tabel_proses), use_container_width=True, hide_index=True)
+            if error:
+                st.error(error)
+            else:
+                st.success(f"Ciphertext: `{hasil}`")
+                st.caption("Salin daftar angka di atas untuk didekripsi kembali di Bagian 3.")
+
+st.divider()
+
+# -----------------------------------------------------------------
+# BAGIAN 3 : DEKRIPSI
+# -----------------------------------------------------------------
+st.header("3️⃣ Dekripsi")
+
+if not st.session_state.rsa_key:
+    st.info("Buat kunci terlebih dahulu di Bagian 1.")
+else:
+    kunci = st.session_state.rsa_key
+    ciphertext_input = st.text_input(
+        "Masukkan ciphertext (angka dipisah spasi atau koma)", key="rsa_ciphertext"
+    )
+    if st.button("Dekripsi", key="btn_dekripsi", type="primary"):
+        if not ciphertext_input:
+            st.error("Ciphertext tidak boleh kosong!")
+        else:
             try:
-                daftar_cipher = [int(x) for x in teks_cipher.replace(",", " ").split()]
+                daftar_cipher = [int(x) for x in ciphertext_input.replace(",", " ").split()]
             except ValueError:
-                print("[ERROR] Format ciphertext tidak valid!")
-                jeda()
-                continue
-            hasil = rsa_decrypt(daftar_cipher, kunci["d"], kunci["n"])
-            print("\nHASIL AKHIR")
-            garis()
-            print(f"Ciphertext : {daftar_cipher}")
-            print(f"Kunci Privat (d, n) : ({kunci['d']}, {kunci['n']})")
-            print(f"Plaintext  : {hasil}")
-            jeda()
+                st.error("Format ciphertext tidak valid!")
+            else:
+                plaintext_hasil, tabel_proses = rsa_decrypt(daftar_cipher, kunci["d"], kunci["n"])
+                st.dataframe(pd.DataFrame(tabel_proses), use_container_width=True, hide_index=True)
+                st.success(f"Plaintext: `{plaintext_hasil}`")
 
-        elif pilihan == "4":
-            break
-        else:
-            print("[ERROR] Pilihan tidak valid!")
-            jeda()
+with st.expander("ℹ️ Cara Kerja RSA"):
+    st.markdown(
+        """
+        1. Pilih dua bilangan prima **p** dan **q** (berbeda)
+        2. Hitung **n = p × q**
+        3. Hitung **φ(n) = (p-1)(q-1)**
+        4. Pilih **e** dengan syarat `1 < e < φ(n)` dan `gcd(e, φ(n)) = 1`
+        5. Hitung **d** = invers modular dari e terhadap φ(n), yaitu `e × d ≡ 1 (mod φ(n))`
+        6. **Public Key = (e, n)** dipakai untuk enkripsi, **Private Key = (d, n)** dipakai untuk dekripsi
+        7. Enkripsi: `C = M^e mod n`
+        8. Dekripsi: `M = C^d mod n`
 
-
-# =======================================================================
-# MENU UTAMA
-# =======================================================================
-
-def menu_utama():
-    judul("APLIKASI ENKRIPSI & DEKRIPSI (XOR CIPHER & RSA)")
-    while True:
-        print("\nMENU UTAMA")
-        print("1. XOR Cipher")
-        print("2. RSA")
-        print("3. Keluar")
-        pilihan = input("\nPilih menu (1-3): ").strip()
-
-        if pilihan == "1":
-            menu_xor()
-        elif pilihan == "2":
-            menu_rsa()
-        elif pilihan == "3":
-            print("\nTerima kasih telah menggunakan aplikasi ini.")
-            break
-        else:
-            print("[ERROR] Pilihan tidak valid!")
-            jeda()
-
-
-if __name__ == "__main__":
-    menu_utama()
+        ⚠️ Catatan: pastikan nilai ASCII karakter plaintext **selalu lebih kecil dari n**,
+        kalau tidak enkripsi akan gagal (pilih p, q yang lebih besar).
+        """
+    )
