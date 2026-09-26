@@ -1,30 +1,22 @@
 """
 =======================================================================
- APLIKASI ENKRIPSI & DEKRIPSI - CAESAR CIPHER
+ CAESAR CIPHER - Streamlit App
+ Aplikasi web untuk enkripsi, dekripsi, dan brute force Caesar Cipher
  Kunci (pergeseran) diinput sendiri oleh user
+
+ Jalankan: streamlit run caesar_app.py
 =======================================================================
 """
 
-
-def garis():
-    print("-" * 65)
-
-
-def judul(teks):
-    print("=" * 65)
-    print(teks.center(65))
-    print("=" * 65)
-
-
-def jeda():
-    input("\nTekan ENTER untuk melanjutkan...")
+import pandas as pd
+import streamlit as st
 
 
 # =======================================================================
-# CAESAR CIPHER
+# LOGIKA CAESAR CIPHER
 # =======================================================================
 
-def geser_karakter(ch, kunci):
+def geser_karakter(ch: str, kunci: int) -> str:
     if ch.isupper():
         awal = ord('A')
         return chr((ord(ch) - awal + kunci) % 26 + awal)
@@ -35,77 +27,46 @@ def geser_karakter(ch, kunci):
         return ch  # karakter non-huruf tidak digeser
 
 
-def caesar_process(teks, kunci, mode):
+def caesar_process(teks: str, kunci: int, mode: str):
+    """
+    Memproses teks dengan Caesar Cipher.
+    mode: "ENKRIPSI" atau "DEKRIPSI"
+    Mengembalikan (hasil_teks, daftar_baris_detail) untuk ditampilkan di tabel.
+    """
     pergeseran = kunci if mode == "ENKRIPSI" else -kunci
 
-    print(f"\nProses {mode} (geser {'maju' if mode == 'ENKRIPSI' else 'mundur'} {kunci} huruf):")
-    print(f"{'No':<4}{'Karakter':<10}{'Posisi Awal':<14}{'Hasil Geser':<14}{'Karakter Hasil':<16}")
-    garis()
-
     hasil = []
+    detail = []
     for i, ch in enumerate(teks):
         if ch.isalpha():
             awal = ord('A') if ch.isupper() else ord('a')
             posisi_awal = ord(ch) - awal
             posisi_hasil = (posisi_awal + pergeseran) % 26
             ch_hasil = chr(posisi_hasil + awal)
-            print(f"{i+1:<4}{ch:<10}{posisi_awal:<14}{posisi_hasil:<14}{ch_hasil:<16}")
+            detail.append({
+                "No": i + 1,
+                "Karakter": ch,
+                "Posisi Awal": posisi_awal,
+                "Hasil Geser": posisi_hasil,
+                "Karakter Hasil": ch_hasil,
+            })
         else:
             ch_hasil = ch
-            print(f"{i+1:<4}{repr(ch):<10}{'-':<14}{'-':<14}{repr(ch_hasil):<16}")
+            detail.append({
+                "No": i + 1,
+                "Karakter": repr(ch),
+                "Posisi Awal": "-",
+                "Hasil Geser": "-",
+                "Karakter Hasil": repr(ch_hasil),
+            })
         hasil.append(ch_hasil)
 
-    return "".join(hasil)
+    return "".join(hasil), detail
 
 
-def input_kunci():
-    while True:
-        teks = input("Masukkan kunci pergeseran (1-25): ").strip()
-        if not (teks.lstrip("-").isdigit()):
-            print("[ERROR] Harus berupa angka!")
-            continue
-        kunci = int(teks)
-        if not (1 <= kunci <= 25):
-            print("[ERROR] Kunci harus di antara 1 dan 25!")
-            continue
-        return kunci
-
-
-def menu_caesar_encrypt():
-    judul("CAESAR CIPHER - ENKRIPSI")
-    plaintext = input("Masukkan plaintext: ")
-    kunci = input_kunci()
-
-    hasil = caesar_process(plaintext, kunci, "ENKRIPSI")
-
-    print("\nHASIL AKHIR")
-    garis()
-    print(f"Plaintext  : {plaintext}")
-    print(f"Kunci      : {kunci}")
-    print(f"Ciphertext : {hasil}")
-
-
-def menu_caesar_decrypt():
-    judul("CAESAR CIPHER - DEKRIPSI")
-    ciphertext = input("Masukkan ciphertext: ")
-    kunci = input_kunci()
-
-    hasil = caesar_process(ciphertext, kunci, "DEKRIPSI")
-
-    print("\nHASIL AKHIR")
-    garis()
-    print(f"Ciphertext : {ciphertext}")
-    print(f"Kunci      : {kunci}")
-    print(f"Plaintext  : {hasil}")
-
-
-def menu_bruteforce():
-    """Menampilkan semua kemungkinan kunci (1-25) untuk membantu analisis."""
-    judul("BRUTE FORCE - COBA SEMUA KUNCI (1-25)")
-    ciphertext = input("Masukkan ciphertext: ")
-
-    print(f"\n{'Kunci':<8}{'Hasil':<40}")
-    garis()
+def bruteforce_semua_kunci(ciphertext: str):
+    """Mengembalikan daftar (kunci, hasil) untuk kunci 1-25."""
+    daftar = []
     for kunci in range(1, 26):
         pergeseran = -kunci
         hasil = []
@@ -116,34 +77,94 @@ def menu_bruteforce():
                 hasil.append(chr(posisi_hasil + awal))
             else:
                 hasil.append(ch)
-        print(f"{kunci:<8}{''.join(hasil):<40}")
+        daftar.append({"Kunci": kunci, "Hasil": "".join(hasil)})
+    return daftar
 
 
-def menu_caesar():
-    while True:
-        judul("MENU CAESAR CIPHER")
-        print("1. Enkripsi")
-        print("2. Dekripsi")
-        print("3. Brute Force (coba semua kunci 1-25)")
-        print("4. Keluar")
-        pilihan = input("\nPilih menu (1-4): ").strip()
+# =======================================================================
+# ANTARMUKA STREAMLIT
+# =======================================================================
 
-        if pilihan == "1":
-            menu_caesar_encrypt()
-            jeda()
-        elif pilihan == "2":
-            menu_caesar_decrypt()
-            jeda()
-        elif pilihan == "3":
-            menu_bruteforce()
-            jeda()
-        elif pilihan == "4":
-            print("\nTerima kasih telah menggunakan aplikasi ini.")
-            break
+st.set_page_config(page_title="Caesar Cipher", layout="centered")
+
+st.title("Caesar Cipher")
+st.caption("Enkripsi, dekripsi, dan brute force teks menggunakan Caesar Cipher.")
+
+tab_enkripsi, tab_dekripsi, tab_bruteforce = st.tabs(
+    ["Enkripsi", "Dekripsi", "Brute Force"]
+)
+
+# -----------------------------------------------------------------
+# TAB ENKRIPSI
+# -----------------------------------------------------------------
+with tab_enkripsi:
+    plaintext = st.text_area(
+        "Masukkan plaintext", height=120, key="plain_enc",
+        placeholder="Ketik atau tempel teks di sini..."
+    )
+    kunci_enc = st.number_input(
+        "Kunci pergeseran (1-25)", min_value=1, max_value=25, value=3, step=1, key="kunci_enc"
+    )
+    if st.button("Proses Enkripsi", type="primary"):
+        if not plaintext.strip():
+            st.warning("Teks tidak boleh kosong.")
         else:
-            print("[ERROR] Pilihan tidak valid!")
-            jeda()
+            hasil, detail = caesar_process(plaintext, int(kunci_enc), "ENKRIPSI")
+            st.success("Berhasil dienkripsi")
+            st.text_area("Ciphertext", value=hasil, height=100)
+            st.download_button(
+                "Unduh hasil (.txt)", data=hasil,
+                file_name="ciphertext.txt", mime="text/plain",
+            )
+            with st.expander("Lihat detail proses per karakter"):
+                st.dataframe(pd.DataFrame(detail), use_container_width=True, hide_index=True)
 
+# -----------------------------------------------------------------
+# TAB DEKRIPSI
+# -----------------------------------------------------------------
+with tab_dekripsi:
+    ciphertext_in = st.text_area(
+        "Masukkan ciphertext", height=120, key="cipher_dec",
+        placeholder="Ketik atau tempel teks di sini..."
+    )
+    kunci_dec = st.number_input(
+        "Kunci pergeseran (1-25)", min_value=1, max_value=25, value=3, step=1, key="kunci_dec"
+    )
+    if st.button("Proses Dekripsi", type="primary"):
+        if not ciphertext_in.strip():
+            st.warning("Teks tidak boleh kosong.")
+        else:
+            hasil, detail = caesar_process(ciphertext_in, int(kunci_dec), "DEKRIPSI")
+            st.success("Berhasil didekripsi")
+            st.text_area("Plaintext", value=hasil, height=100)
+            st.download_button(
+                "Unduh hasil (.txt)", data=hasil,
+                file_name="plaintext.txt", mime="text/plain",
+            )
+            with st.expander("Lihat detail proses per karakter"):
+                st.dataframe(pd.DataFrame(detail), use_container_width=True, hide_index=True)
 
-if __name__ == "__main__":
-    menu_caesar()
+# -----------------------------------------------------------------
+# TAB BRUTE FORCE
+# -----------------------------------------------------------------
+with tab_bruteforce:
+    st.write("Mencoba semua kemungkinan kunci (1-25) untuk membantu analisis ciphertext.")
+    ciphertext_bf = st.text_area(
+        "Masukkan ciphertext", height=120, key="cipher_bf",
+        placeholder="Ketik atau tempel teks di sini..."
+    )
+    if st.button("Jalankan Brute Force", type="primary"):
+        if not ciphertext_bf.strip():
+            st.warning("Teks tidak boleh kosong.")
+        else:
+            daftar = bruteforce_semua_kunci(ciphertext_bf)
+            st.dataframe(pd.DataFrame(daftar), use_container_width=True, hide_index=True)
+
+with st.expander("Cara kerja"):
+    st.write(
+        "Setiap huruf pada teks digeser sejauh nilai kunci di sepanjang alfabet. "
+        "Karakter non-huruf seperti spasi, angka, dan tanda baca tidak diubah. "
+        "Pada dekripsi, arah pergeseran dibalik (dikurangi, bukan ditambah). "
+        "Fitur brute force mencoba seluruh kunci dari 1 sampai 25 sekaligus, "
+        "berguna saat kunci yang benar tidak diketahui."
+    )
