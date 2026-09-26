@@ -45,35 +45,65 @@ def byte_ke_karakter_aman(nilai):
     return ch if ch.isprintable() else f"\\x{nilai:02x}"
 
 
-def xor_process(data, key, mode):
+def parse_key(key_str):
     """
-    data : list of int (nilai byte 0-255)
-    key  : string kunci (tiap karakter diubah ke ASCII, lalu diulang jika lebih pendek)
-    mode : "ENKRIPSI" atau "DEKRIPSI" (hanya label, prosesnya identik)
+    Menentukan cara key diperlakukan:
+    - Kalau key HANYA berisi angka (mis. "13")  -> dianggap SATU nilai byte (0-255),
+      nilai itu diulang terus untuk setiap posisi. Key tidak dipecah per digit.
+    - Kalau key berupa teks/huruf (mis. "keyke") -> tiap karakter diubah ke ASCII
+      masing-masing, lalu diulang sesuai panjang key seperti biasa.
+
+    Return: (key_bytes, key_display, jenis)
+      key_bytes   : list of int, nilai byte key yang dipakai untuk XOR
+      key_display : list of str, representasi key yang ditampilkan di tabel
+                    (panjangnya sama dengan key_bytes, dipasangkan lewat modulo yang sama)
+      jenis       : "Angka (1 byte)" atau "Teks (per karakter)" — untuk info ke user
+    """
+    key_str = key_str.strip()
+
+    if key_str.isdigit():
+        nilai = int(key_str)
+        if not (0 <= nilai <= 255):
+            raise ValueError("Key angka harus di antara 0 dan 255 (karena 1 byte = 8 bit, maksimal nilainya 255)!")
+        return [nilai], [key_str], "Angka (1 byte, diulang terus)"
+
+    else:
+        return [ord(c) for c in key_str], list(key_str), "Teks (per karakter)"
+
+
+def xor_process(data, key_bytes, key_display, mode):
+    """
+    data         : list of int (nilai byte 0-255) — data yang diproses
+    key_bytes    : list of int — nilai byte key (dari parse_key)
+    key_display  : list of str — representasi key untuk ditampilkan di tabel
+    mode         : "ENKRIPSI" atau "DEKRIPSI" (hanya label, prosesnya identik)
 
     Return: (hasil, tabel_proses)
       hasil        : list of int hasil XOR
       tabel_proses : list of dict, satu baris per byte, untuk ditampilkan sebagai tabel
     """
-    key_bytes = [ord(k) for k in key]
     hasil = []
     tabel_proses = []
 
     for i, b in enumerate(data):
-        k = key_bytes[i % len(key_bytes)]
+        idx = i % len(key_bytes)
+        k = key_bytes[idx]
+        k_label = key_display[idx]
         x = b ^ k
 
         hasil.append(x)
         tabel_proses.append({
             "No": i + 1,
-            "Input (dec)": b,
-            "Input (biner)": format(b, "08b"),
-            "Key (dec)": k,
-            "Key (biner)": format(k, "08b"),
-            "XOR (dec)": x,
+            "Huruf": byte_ke_karakter_aman(b),
+            "ASCII": b,
+            "Biner": format(b, "08b"),
+            "Key": k_label,
+            "ASCII Key": k,
+            "Biner Key": format(k, "08b"),
             "XOR (biner)": format(x, "08b"),
-            "XOR (hex)": format(x, "02x"),
-            "Karakter Hasil": byte_ke_karakter_aman(x),
+            "Hasil (dec)": x,
+            "Hasil (hex)": format(x, "02x"),
+            "Hasil (karakter)": byte_ke_karakter_aman(x),
         })
 
     return hasil, tabel_proses
@@ -115,7 +145,19 @@ contoh = {
     "Heksadesimal": "48454c4c4f",
 }
 data_input = st.text_input(f"Masukkan Data ({format_input})", placeholder=f"contoh: {contoh[format_input]}")
-key = st.text_input("Masukkan Key", placeholder="contoh: KEY (key selalu berupa teks/huruf)")
+key = st.text_input(
+    "Masukkan Key",
+    placeholder="contoh: keyke (teks) atau 13 (angka = nilai byte tunggal)",
+    help="Kalau diisi ANGKA saja (mis. 13), key dianggap satu nilai byte yang diulang terus. "
+         "Kalau diisi HURUF/teks (mis. keyke), tiap karakternya dipakai bergantian sesuai posisinya.",
+)
+
+if key:
+    try:
+        _, _, jenis_key = parse_key(key)
+        st.caption(f"🔎 Key terdeteksi sebagai: **{jenis_key}**")
+    except ValueError as e:
+        st.caption(f"⚠️ {e}")
 
 proses = st.button("🚀 Proses", type="primary")
 
@@ -127,10 +169,11 @@ if proses:
     else:
         try:
             data_bytes = parse_input_ke_bytes(data_input, format_input)
+            key_bytes, key_display, jenis_key = parse_key(key)
         except ValueError as e:
             st.error(f"[ERROR] {e}")
         else:
-            hasil, tabel_proses = xor_process(data_bytes, key, mode.upper())
+            hasil, tabel_proses = xor_process(data_bytes, key_bytes, key_display, mode.upper())
             teks_hasil, biner_hasil, hex_hasil = hasil_ke_3_format(hasil)
 
             st.subheader(f"📋 Proses {mode} (setiap byte di-XOR dengan key secara berulang)")
@@ -160,7 +203,9 @@ with st.expander("ℹ️ Cara Kerja XOR Cipher"):
         - **Dekripsi**: `Ciphertext ⊕ Key = Plaintext` (pakai key yang sama)
         - Kalau key lebih pendek dari data, key akan **diulang** (`key[i % panjang_key]`).
         - Setiap byte data & key diubah dulu ke bentuk biner, baru di-XOR bit per bit.
-        - **Key selalu dimasukkan sebagai teks** (tiap karakternya diubah ke ASCII terlebih dulu),
-          tapi **data** yang diproses boleh dalam bentuk Teks, Biner, atau Heksadesimal.
+        - **Key angka (mis. `13`)** → dianggap **satu nilai byte** yang diulang terus untuk semua posisi.
+        - **Key huruf/teks (mis. `keyke`)** → tiap karakternya diubah ke ASCII masing-masing,
+          lalu dipakai bergantian sesuai posisi (dan diulang kalau key lebih pendek dari data).
+        - **Data** yang diproses boleh dalam bentuk Teks, Biner, atau Heksadesimal.
         """
     )
