@@ -125,9 +125,7 @@ def hasil_ke_3_format(hasil_list):
     return teks, biner, hexa
 
 
-# =======================================================================
-# TAMPILAN STREAMLIT
-# =======================================================================
+#tampilan streamlit
 
 st.set_page_config(page_title="XOR Cipher", page_icon="🔐", layout="wide")
 
