@@ -121,7 +121,7 @@ def hasil_ke_3_format(hasil_list):
 
 #tampilan streamlit
 
-st.set_page_config(page_title="XOR Cipher", page_icon="🔐", layout="wide")
+st.set_page_config(page_title="XOR Cipher", layout="wide")
 
 st.title("XOR Cipher")
 st.caption("Enkripsi & Dekripsi dengan operasi XOR — kunci yang sama dipakai untuk kedua arah (symmetric encryption).")
