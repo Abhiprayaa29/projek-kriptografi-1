@@ -1,10 +1,4 @@
-"""
-=======================================================================
- #APLIKASI ENKRIPSI & DEKRIPSI - XOR CIPHER (Streamlit)
- Jalankan dengan: streamlit run xor_streamlit.py
-=======================================================================
-"""
-
+#
 import streamlit as st
 import pandas as pd
 
