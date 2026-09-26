@@ -25,11 +25,6 @@ def jeda():
 # =======================================================================
 
 def geser_karakter(ch, kunci):
-    """
-    Menggeser satu karakter sejauh 'kunci' posisi.
-    - Huruf besar (A-Z) tetap huruf besar, huruf kecil (a-z) tetap huruf kecil.
-    - Karakter selain huruf (spasi, angka, simbol) tidak diubah.
-    """
     if ch.isupper():
         awal = ord('A')
         return chr((ord(ch) - awal + kunci) % 26 + awal)
@@ -64,7 +59,6 @@ def caesar_process(teks, kunci, mode):
 
 
 def input_kunci():
-    """Minta input kunci (pergeseran), harus bilangan bulat 1-25."""
     while True:
         teks = input("Masukkan kunci pergeseran (1-25): ").strip()
         if not (teks.lstrip("-").isdigit()):
