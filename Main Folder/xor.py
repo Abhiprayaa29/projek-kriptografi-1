@@ -35,7 +35,8 @@ def parse_input_ke_bytes(teks, format_input):
 
 
 def byte_ke_karakter_aman(nilai):
-    """Kembalikan karakter kalau bisa dicetak, kalau tidak kembalikan kode escape aman."""
+    """Kembalikan karakter kalau bisa dicetak, 
+    kalau tidak kembalikan kode escape aman."""
     ch = chr(nilai)
     return ch if ch.isprintable() else f"\\x{nilai:02x}"
 
