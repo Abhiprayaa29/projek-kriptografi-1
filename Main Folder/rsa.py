@@ -78,10 +78,7 @@ def rsa_decrypt(daftar_cipher, d, n):
         })
     return "".join(hasil), tabel_proses
 
-
-# =======================================================================
-# TAMPILAN STREAMLIT
-# =======================================================================
+#tampilan 
 
 st.set_page_config(page_title="RSA Cipher", page_icon="🔑", layout="wide")
 
