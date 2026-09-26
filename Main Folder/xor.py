@@ -161,9 +161,9 @@ if key:
         _, _, jenis_key = parse_key(key)
         st.caption(f"🔎 Key terdeteksi sebagai: **{jenis_key}**")
     except ValueError as e:
-        st.caption(f"⚠️ {e}")
+        st.caption(f"{e}")
 
-proses = st.button("🚀 Proses", type="primary")
+proses = st.button("Proses", type="primary")
 
 if proses:
     if not data_input:
@@ -183,7 +183,7 @@ if proses:
             )
             teks_hasil, biner_hasil, hex_hasil = hasil_ke_3_format(hasil)
 
-            st.subheader(f"📋 Proses {mode} (setiap byte di-XOR dengan key secara berulang)")
+            st.subheader(f"Proses {mode} (setiap byte di-XOR dengan key secara berulang)")
             st.dataframe(pd.DataFrame(tabel_proses), use_container_width=True, hide_index=True)
 
             st.subheader("Hasil Akhir — 3 Bentuk Output")
