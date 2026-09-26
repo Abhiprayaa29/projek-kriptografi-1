@@ -172,7 +172,7 @@ if st.session_state.rsa_key:
         st.info(f"**Public Key**  (e, n) = ({kunci['e']}, {kunci['n']})")
     with c2:
         st.warning(f"**Private Key**  (d, n) = ({kunci['d']}, {kunci['n']})")
-    if st.button("🗑️ Reset Kunci"):
+    if st.button("Reset Kunci"):
         st.session_state.rsa_key = None
         st.rerun()
 
@@ -181,7 +181,7 @@ st.divider()
 # -----------------------------------------------------------------
 # BAGIAN 2 : ENKRIPSI
 # -----------------------------------------------------------------
-st.header("2️⃣ Enkripsi")
+st.header("Enkripsi")
 
 if not st.session_state.rsa_key:
     st.info("Buat kunci terlebih dahulu di Bagian 1.")
