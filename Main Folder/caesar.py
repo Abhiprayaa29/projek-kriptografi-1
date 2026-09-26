@@ -18,11 +18,6 @@ def geser_karakter(ch: str, kunci: int) -> str:
 
 
 def caesar_process(teks: str, kunci: int, mode: str):
-    """
-    Memproses teks dengan Caesar Cipher.
-    mode: "ENKRIPSI" atau "DEKRIPSI"
-    Mengembalikan (hasil_teks, daftar_baris_detail) untuk ditampilkan di tabel.
-    """
     pergeseran = kunci if mode == "ENKRIPSI" else -kunci
 
     hasil = []
