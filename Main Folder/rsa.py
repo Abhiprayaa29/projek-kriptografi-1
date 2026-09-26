@@ -202,8 +202,9 @@ else:
 
 st.divider()
 
-#deks
-st.header("3️⃣ Dekripsi")
+#dekripsi
+
+st.header("Dekripsi")
 
 if not st.session_state.rsa_key:
     st.info("Buat kunci terlebih dahulu di Bagian 1.")
@@ -225,7 +226,7 @@ else:
                 st.dataframe(pd.DataFrame(tabel_proses), use_container_width=True, hide_index=True)
                 st.success(f"Plaintext: `{plaintext_hasil}`")
 
-with st.expander("ℹ️ Cara Kerja RSA"):
+with st.expander("Cara Kerja RSA"):
     st.markdown(
         """
         1. Pilih dua bilangan prima **p** dan **q** (berbeda)
