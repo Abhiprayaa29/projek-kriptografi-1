@@ -1008,22 +1008,54 @@ def ui_super():
                     st.markdown("### Plaintext Hasil Dekripsi")
                     st.code(r["plaintext"])
 
-                    st.markdown("### Proses Bertahap")
-                    with st.expander("Tahap 1 - Dekripsi RSA"):
-                        st.write(f"d = {d}, n = {n}  |  M = C^d mod n")
-                        st.write("Hex:")
-                        st.code(hex_view(r["rsa_bytes"]))
-                        st.write("Desimal:")
-                        st.code(dec_view(r["rsa_bytes"]))
-                    with st.expander("Tahap 2 - Dekripsi XOR"):
-                        st.write(f"Kunci = {xor_key}")
-                        st.code(r["xor_text"])
-                    with st.expander("Tahap 3 - Dekripsi Vigenere"):
-                        st.write(f"Kunci = {vig_key}")
-                        st.code(r["vigenere"])
-                    with st.expander("Tahap 4 - Dekripsi Caesar (Plaintext)"):
-                        st.write(f"Shift = {int(shift)}")
-                        st.code(r["plaintext"])
+                    st.markdown("### Proses Dekripsi Bertahap")
+                    st.caption("Urutan terbalik: Ciphertext -> RSA -> XOR -> Vigenere -> Caesar -> Plaintext.")
+
+                    with st.expander("Tahap 1 - Dekripsi RSA (per byte)", expanded=True):
+                        st.write(f"Tiap angka didekripsi dengan rumus `M = C^d mod n`, d = {d}, n = {n}.")
+                        st.write("**Masukan (ciphertext):**")
+                        st.code(ciphertext.strip(), language="text")
+                        st.write("Detail per byte:")
+                        st.dataframe(
+                            pd.DataFrame(super_rsa_tabel(r["rsa_bytes"], r["angka"], d, n, "DEKRIPSI")),
+                            use_container_width=True,
+                            hide_index=True,
+                        )
+                        st.write("**Hasil Tahap 1 (byte, hex):**")
+                        st.code(hex_view(r["rsa_bytes"]), language="text")
+
+                    with st.expander("Tahap 2 - Dekripsi XOR (per byte)", expanded=True):
+                        st.write(f"XOR lagi dengan kunci yang sama (XOR bersifat balik: a ^ b ^ b = a). Kunci: `{xor_key}`.")
+                        st.write("**Masukan (byte hasil Tahap 1, hex):**")
+                        st.code(hex_view(r["rsa_bytes"]), language="text")
+                        st.write("Detail per byte:")
+                        st.dataframe(
+                            pd.DataFrame(super_xor_tabel(r["rsa_bytes"], xor_key)),
+                            use_container_width=True,
+                            hide_index=True,
+                        )
+                        st.write("**Hasil Tahap 2 (teks):**")
+                        st.code(r["xor_text"], language="text")
+
+                    with st.expander("Tahap 3 - Dekripsi Vigenere", expanded=True):
+                        st.write(f"Geser mundur sesuai huruf kunci yang berulang siklis. Kunci: `{vig_key}`.")
+                        st.write("**Masukan (hasil Tahap 2):**")
+                        st.code(r["xor_text"], language="text")
+                        st.write("**Hasil Tahap 3 (Vigenere):**")
+                        st.code(r["vigenere"], language="text")
+                        st.write("Detail per karakter:")
+                        _, detail3 = vigenere_process(r["xor_text"], vig_key, decrypt=True)
+                        st.dataframe(pd.DataFrame(detail3), use_container_width=True, hide_index=True)
+
+                    with st.expander("Tahap 4 - Dekripsi Caesar (Plaintext)", expanded=True):
+                        st.write(f"Geser mundur sejauh shift. Rumus: `M = (C - shift) mod 26`, shift = {int(shift)}.")
+                        st.write("**Masukan (hasil Tahap 3):**")
+                        st.code(r["vigenere"], language="text")
+                        st.write("**Hasil Tahap 4 (plaintext):**")
+                        st.code(r["plaintext"], language="text")
+                        st.write("Detail per karakter:")
+                        _, detail4 = caesar_process(r["vigenere"], int(shift), "DEKRIPSI")
+                        st.dataframe(pd.DataFrame(detail4), use_container_width=True, hide_index=True)
                 except ValueError as err:
                     st.error(f"Kesalahan: {err}")
 
