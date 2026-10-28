@@ -1018,6 +1018,22 @@ def ui_super():
                         st.code(r["plaintext"])
                 except ValueError as err:
                     st.error(f"Kesalahan: {err}")
+
+    with st.expander("Cara kerja"):
+        st.write(
+            "Super Enkripsi menggabungkan 4 algoritma secara berurutan dalam satu "
+            "proses. Enkripsi berjalan: Caesar menggeser setiap huruf sejauh kunci, "
+            "hasilnya lalu di-Vigenere dengan kunci huruf yang diulang, hasilnya "
+            "diubah menjadi byte dan di-XOR dengan kunci XOR, lalu tiap byte "
+            "dienkripsi RSA (C = M^e mod n) sehingga ciphertext akhir berupa daftar "
+            "angka dipisah spasi. Dekripsi menjalankan urutan terbalik: RSA "
+            "(M = C^d mod n) -> XOR -> Vigenere -> Caesar, sehingga menghasilkan "
+            "plaintext kembali. Kunci yang sama dipakai di kedua arah: shift "
+            "Caesar, kunci Vigenere, kunci XOR, dan pasangan (e, n) untuk enkripsi "
+            "serta (d, n) untuk dekripsi. Setelah menekan tombol, bagian Proses "
+            "Bertahap menampilkan hasil tiap lapis agar bisa ditelusuri satu per satu."
+        )
+
     st.divider()
 
 
