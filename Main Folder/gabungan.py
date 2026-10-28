@@ -86,24 +86,52 @@ def bruteforce_semua_kunci(ciphertext: str):
 # LOGIKA VIGENERE CIPHER
 # =======================================================================
 
-def vigenere(text: str, key: str, decrypt: bool = False) -> str:
-
+def vigenere_process(text: str, key: str, decrypt: bool = False):
+    """Mengembalikan (hasil, detail) per karakter untuk ditampilkan."""
     key = "".join(c for c in key if c.isalpha())
     if not key:
         raise ValueError("Kunci Vigenere harus berisi minimal satu huruf.")
 
     hasil = []
+    detail = []
     idx = 0
-    for ch in text:
+    for i, ch in enumerate(text, start=1):
         if ch.isalpha():
-            geser = ord(key[idx % len(key)].upper()) - ord('A')
+            kunci_ch = key[idx % len(key)]
+            geser = ord(kunci_ch.upper()) - ord('A')
             base = ord('A') if ch.isupper() else ord('a')
+            posisi_awal = ord(ch) - base
             arah = -geser if decrypt else geser
-            hasil.append(chr((ord(ch) - base + arah) % 26 + base))
+            posisi_hasil = (posisi_awal + arah) % 26
+            ch_hasil = chr(posisi_hasil + base)
+            detail.append({
+                "No": i,
+                "Karakter": ch,
+                "Kunci": kunci_ch,
+                "Posisi Awal": posisi_awal,
+                "Geseran": arah,
+                "Posisi Hasil": posisi_hasil,
+                "Karakter Hasil": ch_hasil,
+            })
+            hasil.append(ch_hasil)
             idx += 1
         else:
             hasil.append(ch)
-    return "".join(hasil)
+            detail.append({
+                "No": i,
+                "Karakter": repr(ch),
+                "Kunci": "-",
+                "Posisi Awal": "-",
+                "Geseran": "-",
+                "Posisi Hasil": "-",
+                "Karakter Hasil": repr(ch),
+            })
+    return "".join(hasil), detail
+
+
+def vigenere(text: str, key: str, decrypt: bool = False) -> str:
+    hasil, _ = vigenere_process(text, key, decrypt=decrypt)
+    return hasil
 
 
 def vigenere_encrypt(text: str, key: str) -> str:
