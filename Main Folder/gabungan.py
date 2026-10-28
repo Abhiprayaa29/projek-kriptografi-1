@@ -480,6 +480,37 @@ def dec_view(data: bytes) -> str:
     return " ".join(str(b) for b in data)
 
 
+def super_xor_tabel(data: bytes, key: str) -> list:
+    """Tabel proses XOR per byte untuk tampilan Super (kunci = UTF-8, sama seperti xor_bytes)."""
+    kb = key.encode("utf-8")
+    rows = []
+    for i, b in enumerate(data, start=1):
+        k = kb[(i - 1) % len(kb)]
+        x = b ^ k
+        rows.append(
+            {
+                "No": i,
+                "Masukan (des)": b,
+                "Biner Masukan": format(b, "08b"),
+                "Kunci (des)": k,
+                "Hasil XOR (des)": x,
+                "Biner Hasil": format(x, "08b"),
+            }
+        )
+    return rows
+
+
+def super_rsa_tabel(m_list: list, c_list: list, nilai: int, n: int, mode: str) -> list:
+    """Tabel proses RSA per byte untuk tampilan Super. mode = ENKRIPSI (M->C) atau DEKRIPSI (C->M)."""
+    rows = []
+    for i, (m, c) in enumerate(zip(m_list, c_list), start=1):
+        if mode == "ENKRIPSI":
+            rows.append({"No": i, "M (byte)": m, "Perhitungan": f"{m}^{nilai} mod {n}", "C": c})
+        else:
+            rows.append({"No": i, "C": c, "Perhitungan": f"{c}^{nilai} mod {n}", "M (byte)": m})
+    return rows
+
+
 # =======================================================================
 # ANTARMUKA: CAESAR CIPHER
 # =======================================================================
