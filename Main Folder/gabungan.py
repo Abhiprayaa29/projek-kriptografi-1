@@ -768,145 +768,93 @@ def ui_rsa():
     st.title("RSA Cipher")
     st.caption("Enkripsi & Dekripsi asimetris - kunci publik untuk mengenkripsi, kunci privat untuk mendekripsi.")
 
-    if "rsa_key" not in st.session_state:
-        st.session_state.rsa_key = None
+    # ---------------------- Kunci ----------------------
+    st.header("1. Kunci RSA")
 
-    #pembangkitan kunci (input p dan q manual)
+    mode_key = st.radio(
+        "Mode kunci",
+        ["Preset Otomatis", "Manual (p, q, e)"],
+        horizontal=True,
+        help="Preset langsung menghasilkan kunci; Manual memilih p, q, dan e sendiri.",
+    )
 
-    st.header("Pembangkitan Kunci")
+    if mode_key == "Preset Otomatis":
+        pilihan = st.selectbox("Pilih preset", list(PRESET_RSA.keys()))
+        p, q, e = PRESET_RSA[pilihan]
+    else:
+        c1, c2, c3 = st.columns(3)
+        p = int(c1.number_input("p (prima)", min_value=2, value=17, step=1))
+        q = int(c2.number_input("q (prima)", min_value=2, value=19, step=1))
+        e = int(c3.number_input("e (harus koprima dengan φ(n))", min_value=2, value=5, step=1))
 
-    col1, col2 = st.columns(2)
-    with col1:
-        p_input = st.text_input("Masukkan p (bilangan prima)", key="p_input")
-    with col2:
-        q_input = st.text_input("Masukkan q (bilangan prima)", key="q_input")
+    n, phi, d, errors = hitung_kunci_rsa(int(p), int(q), int(e))
 
-    p_valid = q_valid = False
-    p = q = None
-
-    if p_input:
-        if not p_input.isdigit():
-            st.error("p harus berupa angka!")
-        else:
-            p = int(p_input)
-            if not is_prima(p):
-                st.error(f"{p} bukan bilangan prima! Silakan masukkan ulang.")
-            else:
-                p_valid = True
-
-    if q_input:
-        if not q_input.isdigit():
-            st.error("q harus berupa angka!")
-        else:
-            q = int(q_input)
-            if not is_prima(q):
-                st.error(f"{q} bukan bilangan prima! Silakan masukkan ulang.")
-            elif p_valid and q == p:
-                st.error("q tidak boleh sama dengan p!")
-            else:
-                q_valid = True
-
-    n = phi = None
-    e_valid = False
-    e = None
-
-    if p_valid and q_valid:
-        n = p * q
-        phi = (p - 1) * (q - 1)
-        st.success(f"n = p × q = {p} × {q} = **{n}**")
-        st.success(f"φ(n) = (p-1) × (q-1) = {p - 1} × {q - 1} = **{phi}**")
-
-        e_input = st.text_input(
-            f"Masukkan e (syarat: 2 s/d {phi - 1}, gcd(e, φ(n)) = 1)",
-            key="e_input",
+    kunci = None
+    if errors:
+        for err in errors:
+            st.error(err)
+    elif d is None:
+        st.error("Kunci privat d tidak bisa dihitung. Periksa nilai e.")
+    else:
+        kunci = {"p": int(p), "q": int(q), "n": n, "phi": phi, "e": int(e), "d": d}
+        st.success(
+            f"n = {int(p)} × {int(q)} = **{n}** | φ(n) = ({int(p)} - 1) × ({int(q)} - 1) = **{phi}** | "
+            f"d = invers modular dari {int(e)} mod {phi} = **{d}**"
         )
-
-        if e_input:
-            if not e_input.isdigit():
-                st.error("e harus berupa angka!")
-            else:
-                e = int(e_input)
-                if e <= 1:
-                    st.error(
-                        "e tidak boleh 1 atau kurang! Jika e=1, C = M^1 mod n = M "
-                        "(tidak terjadi enkripsi). e minimal 2."
-                    )
-                elif e >= phi:
-                    st.error(f"e harus lebih kecil dari φ(n) = {phi}!")
-                elif gcd(e, phi) != 1:
-                    st.error(
-                        f"e = {e} tidak coprime dengan φ(n) = {phi} "
-                        f"(gcd({e}, {phi}) = {gcd(e, phi)}, harus = 1). Pilih e lain!"
-                    )
-                else:
-                    e_valid = True
-
-        if e_valid and st.button("Buat Kunci", type="primary"):
-            d = modinv(e, phi)
-            st.session_state.rsa_key = {"p": p, "q": q, "n": n, "phi": phi, "e": e, "d": d}
-            st.rerun()
-
-    if st.session_state.rsa_key:
-        kunci = st.session_state.rsa_key
-        st.markdown("Kunci Berhasil Dibuat")
-        c1, c2 = st.columns(2)
-        with c1:
-            st.info(f"**Public Key**  (e, n) = ({kunci['e']}, {kunci['n']})")
-        with c2:
-            st.warning(f"**Private Key**  (d, n) = ({kunci['d']}, {kunci['n']})")
-        if st.button("Reset Kunci"):
-            st.session_state.rsa_key = None
-            st.rerun()
+        k1, k2 = st.columns(2)
+        k1.info(f"**Public Key (e, n)** = ({int(e)}, {n}) - dipakai untuk enkripsi")
+        k2.warning(f"**Private Key (d, n)** = ({d}, {n}) - dipakai untuk dekripsi")
 
     st.divider()
 
-    #enkripsi
+    # ---------------------- Enkripsi / Dekripsi ----------------------
+    st.header("2. Enkripsi & Dekripsi")
 
-    st.header("Enkripsi")
-
-    if not st.session_state.rsa_key:
-        st.info("Buat kunci terlebih dahulu di Bagian 1.")
+    if kunci is None:
+        st.info("Perbaiki kunci RSA di bagian 1 terlebih dahulu.")
     else:
-        kunci = st.session_state.rsa_key
-        plaintext = st.text_input("Masukkan plaintext", key="rsa_plaintext")
-        if st.button("Enkripsi", key="btn_enkripsi", type="primary"):
-            if not plaintext:
-                st.error("Plaintext tidak boleh kosong!")
-            else:
-                hasil, tabel_proses, error = rsa_encrypt(plaintext, kunci["e"], kunci["n"])
-                if tabel_proses:
-                    st.dataframe(pd.DataFrame(tabel_proses), use_container_width=True, hide_index=True)
-                if error:
-                    st.error(error)
+        tab_enc, tab_dec = st.tabs(["Enkripsi", "Dekripsi"])
+
+        with tab_enc:
+            plaintext = st.text_area("Masukkan plaintext", height=100, key="rsa_plaintext")
+            if st.button("Enkripsi", key="btn_enkripsi", type="primary"):
+                if not plaintext:
+                    st.error("Plaintext tidak boleh kosong!")
                 else:
-                    st.success(f"Ciphertext: `{hasil}`")
-                    st.caption("Salin daftar angka di atas untuk didekripsi kembali di Bagian 3.")
+                    hasil, tabel_proses, error = rsa_encrypt(plaintext, kunci["e"], kunci["n"])
+                    if tabel_proses:
+                        st.write("**Proses per karakter:**")
+                        st.dataframe(pd.DataFrame(tabel_proses), use_container_width=True, hide_index=True)
+                    if error:
+                        st.error(error)
+                    else:
+                        st.success("Enkripsi berhasil!")
+                        st.code(" ".join(map(str, hasil)), language="text")
+                        st.caption("Salin daftar angka di atas ke tab Dekripsi.")
 
-    st.divider()
-
-    #dekripsi
-
-    st.header("Dekripsi")
-
-    if not st.session_state.rsa_key:
-        st.info("Buat kunci terlebih dahulu di Bagian 1.")
-    else:
-        kunci = st.session_state.rsa_key
-        ciphertext_input = st.text_input(
-            "Masukkan ciphertext (angka dipisah spasi atau koma)", key="rsa_ciphertext"
-        )
-        if st.button("Dekripsi", key="btn_dekripsi", type="primary"):
-            if not ciphertext_input:
-                st.error("Ciphertext tidak boleh kosong!")
-            else:
-                try:
-                    daftar_cipher = [int(x) for x in ciphertext_input.replace(",", " ").split()]
-                except ValueError:
-                    st.error("Format ciphertext tidak valid!")
+        with tab_dec:
+            ciphertext_input = st.text_area(
+                "Masukkan ciphertext (angka dipisah spasi atau koma)",
+                height=100,
+                key="rsa_ciphertext",
+            )
+            if st.button("Dekripsi", key="btn_dekripsi", type="primary"):
+                if not ciphertext_input:
+                    st.error("Ciphertext tidak boleh kosong!")
                 else:
-                    plaintext_hasil, tabel_proses = rsa_decrypt(daftar_cipher, kunci["d"], kunci["n"])
-                    st.dataframe(pd.DataFrame(tabel_proses), use_container_width=True, hide_index=True)
-                    st.success(f"Plaintext: `{plaintext_hasil}`")
+                    try:
+                        daftar_cipher = [int(x) for x in ciphertext_input.replace(",", " ").split()]
+                    except ValueError:
+                        st.error("Format ciphertext tidak valid!")
+                    else:
+                        if not daftar_cipher:
+                            st.error("Ciphertext tidak boleh kosong!")
+                        else:
+                            plaintext_hasil, tabel_proses = rsa_decrypt(daftar_cipher, kunci["d"], kunci["n"])
+                            st.write("**Proses per angka:**")
+                            st.dataframe(pd.DataFrame(tabel_proses), use_container_width=True, hide_index=True)
+                            st.success("Dekripsi berhasil!")
+                            st.code(plaintext_hasil, language="text")
 
     with st.expander("Cara Kerja RSA"):
         st.markdown(
