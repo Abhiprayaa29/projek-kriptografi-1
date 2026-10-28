@@ -598,14 +598,14 @@ def ui_vigenere():
             st.warning("Kunci harus berisi minimal satu huruf.")
         else:
             try:
-                if mode == "Enkripsi":
-                    hasil = vigenere_encrypt(teks, kunci)
-                    st.success("Berhasil dienkripsi")
-                    st.text_area("Ciphertext", value=hasil, height=150)
-                else:
-                    hasil = vigenere_decrypt(teks, kunci)
+                decrypt_mode = mode == "Dekripsi"
+                hasil, detail = vigenere_process(teks, kunci, decrypt=decrypt_mode)
+                if decrypt_mode:
                     st.success("Berhasil didekripsi")
                     st.text_area("Plaintext", value=hasil, height=150)
+                else:
+                    st.success("Berhasil dienkripsi")
+                    st.text_area("Ciphertext", value=hasil, height=150)
 
                 st.download_button(
                     label="Unduh hasil (.txt)",
@@ -613,6 +613,18 @@ def ui_vigenere():
                     file_name="hasil_vigenere.txt",
                     mime="text/plain",
                 )
+
+                st.subheader(
+                    "Tampilan Proses Dekripsi" if decrypt_mode
+                    else "Tampilan Proses Enkripsi"
+                )
+                st.caption(
+                    "Kolom Kunci = huruf kunci yang aktif pada posisi tersebut. "
+                    "Geseran = nilai huruf kunci (0-25) untuk enkripsi, negatif untuk dekripsi. "
+                    "Karakter non-huruf tidak diubah dan tidak menggeser posisi kunci."
+                )
+                with st.expander("Lihat detail proses per karakter", expanded=True):
+                    st.dataframe(pd.DataFrame(detail), use_container_width=True, hide_index=True)
             except ValueError as e:
                 st.error(f"Kesalahan: {e}")
 
